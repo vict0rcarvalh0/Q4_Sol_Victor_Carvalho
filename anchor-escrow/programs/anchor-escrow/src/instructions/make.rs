@@ -40,10 +40,10 @@ impl<'info> Make<'info> {
     pub fn init_escrow(&mut self, seed: u64, receive: u64, bumps: &MakeBumps) -> Result<()> {
         self.escrow.set_inner(Escrow {
             seed,
-            maker: self.maker.key(),
+            maker: self.maker.key(), // pub key do maker
             mint_a: self.mint_a.key(),
             mint_b: self.mint_b.key(),
-            receive,
+            receive, // amount
             bump: bumps.escrow,
         });
 

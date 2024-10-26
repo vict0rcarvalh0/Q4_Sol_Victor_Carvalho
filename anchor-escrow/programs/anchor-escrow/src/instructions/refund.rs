@@ -15,7 +15,7 @@ pub struct Refund<'info> {
     maker_ata_a: InterfaceAccount<'info, TokenAccount>,
     #[account(
         mut,
-        close = maker,
+        close = maker, // who will receive the rent back
         has_one = mint_a, // checks that inside the escrow there is a variable call maker and mint_a with the same value as the scruct var
         has_one = maker,
         seeds = [b"escrow", maker.key().as_ref(), escrow.seed.to_le_bytes().as_ref()],
