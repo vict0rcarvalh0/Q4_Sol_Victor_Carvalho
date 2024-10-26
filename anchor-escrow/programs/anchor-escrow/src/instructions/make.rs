@@ -1,8 +1,9 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint, TokenAccount, TokenInterface, TransferChecked, transfer_checked}};
+use crate::state::Escrow;
 
 #[derive(Accounts)] // accounts context
-#[instructions(seed: u64)] // macro that let you access your instruction arguments in the account struct
+#[instruction(seed: u64)] // macro that let you access your instruction arguments in the account struct
 pub struct Make<'info> {
     #[account(mut)]
     pub maker: Signer<'info>,
@@ -10,7 +11,7 @@ pub struct Make<'info> {
     pub mint_b: InterfaceAccount<'info, Mint>,
     #[account (
         mut, // mutable because will deduct lamports from the ata
-        associated_token::mint = mint_a // checks if this is actually derived from the mint a
+        associated_token::mint = mint_a, // checks if this is actually derived from the mint a
         associated_token::authority = maker,
     )]
     pub maker_ata_a: InterfaceAccount<'info, TokenAccount>,
@@ -21,7 +22,7 @@ pub struct Make<'info> {
         bump,
         space = 8 + Escrow::INIT_SPACE,
     )]
-    pub escrow: Accounts<'info, Escrow>,
+    pub escrow: Account<'info, Escrow>,
     #[account(
         init, // every time init is marked, turns the account mutable
         payer = maker,
@@ -49,7 +50,7 @@ impl<'info> Make<'info> {
         Ok(())
     }
 
-    pub fn deposit(&mut self, amount: u64) -> Result<()> {
+    pub fn deposit(&mut self, amount_deposit: u64) -> Result<()> {
         let cpi_program = self.token_program.to_account_info();
 
         let cpi_accounts = TransferChecked { // extra checks to the transfer(who is it from)
@@ -61,8 +62,8 @@ impl<'info> Make<'info> {
 
         let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
-        transfer_checked(cpi_ctx, deposit, self.mint_a.decimals)?; // checks the decimals of the mint and the amount
+        transfer_checked(cpi_ctx, amount_deposit, self.mint_a.decimals)?; // checks the decimals of the mint and the amount
 
-        transfer
+        Ok(())
     }
 } 

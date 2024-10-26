@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface, TransferChecked, transfer_checked, CloseAccount, close_account};
+use crate::state::Escrow;
 
 #[derive(Accounts)]
 pub struct Refund<'info> {
@@ -27,7 +28,7 @@ pub struct Refund<'info> {
         associated_token::authority = escrow
     )]
     vault: InterfaceAccount<'info, TokenAccount>,
-    token_program: Interface<'info, TokenInterface>
+    token_program: Interface<'info, TokenInterface>,
     system_program: Program<'info, System>
 }
 
@@ -36,7 +37,7 @@ impl<'info> Refund<'info> {
         let signer_seeds: [&[&[u8]]; 1] = [&[
             b"escrow",
             self.maker.key.as_ref(),
-            self.escrow.to_le_bytes()[..],
+            &self.escrow.seed.to_le_bytes()[..],
             &[self.escrow.bump]
         ]];
 
