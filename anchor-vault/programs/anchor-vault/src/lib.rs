@@ -23,6 +23,12 @@ pub mod anchor_vault {
 
         Ok(())
     }
+
+    pub fn close(ctx: Context<Close>) -> Result<()> {
+        ctx.accounts.close()?;
+
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -151,7 +157,7 @@ impl<'info> Close<'info> {
 
 impl<'info> Initialize<'info> {
     pub fn initialize(&mut self, bumps: &InitializeBumps) -> Result<()> { // 
-        self.vault_state.vault_bump = bumps.vault_state;
+        self.vault_state.vault_bump = bumps.vault;
         self.vault_state.state_bump = bumps.vault_state;
 
         Ok(())
