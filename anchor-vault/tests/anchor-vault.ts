@@ -24,17 +24,30 @@ describe("anchor-vault", () => {
       program.programId
     );
 
-    // const connection = new Connection("https://api.devnet.solana.com");
+    // const connection = provider.connection;
 
-    // (async () => {
-    //     try {
-    //         const txhash = await connection.requestAirdrop(user, 2 * LAMPORTS_PER_SOL);
-    //     console.log(`Success! Check out your TX here: 
-    //     https://explorer.solana.com/tx/${txhash}?cluster=devnet`);
-    //     } catch(e) {
-    //         console.error(`Oops, something went wrong: ${e}`)
-    //     }
-    // })();
+    // const rentExemptBalance = await provider.connection.getMinimumBalanceForRentExemption(
+    //   8 + 1 + 1 
+    // );
+
+    // const userBalance = await provider.connection.getBalance(user);
+    // if (userBalance < rentExemptBalance) {
+    //   try {
+    //     const txhash = await connection.requestAirdrop(user, 2 * LAMPORTS_PER_SOL);
+    //     connection.confirmTransaction(txhash)
+    //     console.log(`Success! Check out your TX here: https://explorer.solana.com/tx/${txhash}?cluster=devnet`);
+    //   } catch(e) {
+    //     console.error(`Oops, something went wrong: ${e}`)
+    //   }
+    // }
+
+    // try {
+    //   const txhash = await connection.requestAirdrop(vaultPDA, 2 * LAMPORTS_PER_SOL);
+    //   connection.confirmTransaction(txhash)
+    //   console.log(`Success! Check out your TX here: https://explorer.solana.com/tx/${txhash}?cluster=devnet`);
+    // } catch(e) {
+    //   console.error(`Oops, something went wrong: ${e}`)
+    // }
   });
 
   it("Initialize vault", async () => {
@@ -54,7 +67,7 @@ describe("anchor-vault", () => {
 
   it("Deposit funds into vault", async () => {
     try {
-      const depositAmount = new anchor.BN(1_000_000);
+      const depositAmount = new anchor.BN(1_000_000_000);
 
       const tx = await program.methods
         .deposit(depositAmount)
@@ -77,7 +90,7 @@ describe("anchor-vault", () => {
 
   it("Withdraw funds from vault", async () => {
     try {
-      const withdrawAmount = new anchor.BN(300_000);
+      const withdrawAmount = new anchor.BN(300_000_000);
 
       const tx = await program.methods
         .withdraw(withdrawAmount)
