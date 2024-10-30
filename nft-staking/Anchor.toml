@@ -16,3 +16,12 @@ wallet = "~/.config/solana/id.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+
+
+# Want to clone the address into the local validator to the endpoint defined(metadata program into mainet)
+# When running `anchor test`, spins up the local validator and run the program in the local validator to testing
+[test.validator]
+url = "https://api.mainnet-beta.solana.com"
+
+[[test.validator.clone]]
+address = ""
