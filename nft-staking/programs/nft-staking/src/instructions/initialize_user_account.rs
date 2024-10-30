@@ -11,18 +11,19 @@ pub struct Initialize<'info> {
         payer = user,
         seeds = [b"user".as_ref(), user.key().as_ref()],
         bump,
-        space = UserAccount::INIT_SPACE,
+        space = 8 + UserAccount::INIT_SPACE,
     )]
     pub user_account: Account<'info, UserAccount>,
     pub system_program: Program<'info, System>,
 }
 
 impl<'info> Initialize<'info> {
-    pub fn init_user(&mut self, bumps: &InitializeBumps) -> Result<()> {
-        self.user_account.set_inner(UserAccount{
-            points: 0,
-            amount_staked: 0,
-            bump: bumps.user_account,
+    
+    pub fn initialize_user(&mut self, bumps: &InitializeBumps) -> Result<()> {
+        self.user_account.set_inner(UserAccount { 
+            points: 0, 
+            amount_staked: 0, 
+            bump: bumps.user_account 
         });
 
         Ok(())
