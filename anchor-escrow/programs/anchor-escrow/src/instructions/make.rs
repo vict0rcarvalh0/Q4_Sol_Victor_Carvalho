@@ -11,7 +11,7 @@ pub struct Make<'info> {
     pub mint_b: InterfaceAccount<'info, Mint>,
     #[account (
         mut, // mutable because will deduct lamports from the ata
-        associated_token::mint = mint_a, // checks if this is actually derived from the mint a
+        associated_token::mint = mint_a, // checks if this is actually derived from the mint au
         associated_token::authority = maker,
     )]
     pub maker_ata_a: InterfaceAccount<'info, TokenAccount>,

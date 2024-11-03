@@ -40,7 +40,7 @@ pub struct Stake<'info> {
         ],
         seeds::program = metadata_program.key(),
         bump,
-        constraint = metadata.collection.as_ref().unwrap().key.as_ref() == collection_mint.key().as_ref(), // to check if our collection matches the collection from metadata 
+        constraint = metadata.collection.as_ref().unwrap().key.as_ref() == collection_mint.key().as_ref(), // to check if our collection matches the metadata collection  
         constraint = metadata.collection.as_ref().unwrap().verified == true, // to check if the nft is verified as part of the collection 
     )]
     pub metadata: Account<'info, MetadataAccount>, // MetadataAccount is a PDA owned by metadata program, the seeds for it is "metadata", the program and the mint
@@ -55,7 +55,7 @@ pub struct Stake<'info> {
         bump,
     )]
     pub master_edition: Account<'info, MasterEditionAccount>, // will verify that the current supply is 1, 0 decimals and pass the mint authority to itself
-    #[account(
+    #[account( // proves the be non fungible
         seeds = [b"config".as_ref()],
         bump = config_account.bump,
     )]
@@ -101,7 +101,7 @@ impl<'info> Stake<'info> {
 
         let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
         
-        approve(cpi_ctx, 1)?;
+        approve(cpi_ctx, 1)?; // reclaiming authority of 1 token because is 1 nft
 
         let seeds = &[
             b"stake",

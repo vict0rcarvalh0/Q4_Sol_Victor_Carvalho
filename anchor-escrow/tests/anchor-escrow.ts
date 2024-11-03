@@ -1,105 +1,179 @@
 import * as anchor from "@coral-xyz/anchor";
-import { Program } from "@coral-xyz/anchor";
+import { Program, BN } from "@coral-xyz/anchor";
+import {
+  Keypair,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  SendTransactionError,
+} from "@solana/web3.js";
+import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  MINT_SIZE,
+  TOKEN_PROGRAM_ID,
+  createAssociatedTokenAccountIdempotentInstruction,
+  createInitializeMint2Instruction,
+  createMintToInstruction,
+  getAssociatedTokenAddressSync,
+  getMinimumBalanceForRentExemptMint,
+} from "@solana/spl-token";
 import { AnchorEscrow } from "../target/types/anchor_escrow";
-import { PublicKey, SystemProgram, LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID, createMint, createAssociatedTokenAccount, mintTo } from "@solana/spl-token";
-import { assert } from "chai";
 
-describe("anchor-escrow", () => {
-  const provider = anchor.AnchorProvider.env();
-  anchor.setProvider(provider);
+describe("Escrow Program", () => {
+  anchor.setProvider(anchor.AnchorProvider.env());
+
+  const provider = anchor.getProvider();
+
+  const connection = provider.connection;
 
   const program = anchor.workspace.AnchorEscrow as Program<AnchorEscrow>;
 
-  let maker: anchor.web3.Keypair;
-  let mintA: PublicKey;
-  let mintB: PublicKey;
-  let makerAtaA: PublicKey;
-  let vault: PublicKey;
-  let escrow: PublicKey;
-  const seed = new anchor.BN(123);
+  const confirm = async (signature: string): Promise<string> => {
+    const block = await connection.getLatestBlockhash();
+    await connection.confirmTransaction({
+      signature,
+      ...block,
+    });
+    return signature;
+  };
 
-  before(async () => {
-    maker = anchor.web3.Keypair.generate();
-
-    await provider.connection.requestAirdrop(maker.publicKey, 2 * LAMPORTS_PER_SOL);
-
-    mintA = await createMint(
-      provider.connection,
-      maker,
-      maker.publicKey,
-      null,
-      6 
+  const log = async (signature: string): Promise<string> => {
+    console.log(
+      `Your transaction signature: https://explorer.solana.com/transaction/${signature}?cluster=custom&customUrl=${connection.rpcEndpoint}`
     );
+    return signature;
+  };
 
-    mintB = await createMint(
-      provider.connection,
-      maker,
-      maker.publicKey,
-      null,
-      6
-    );
+  // Accounts
+  const taker = Keypair.generate();
+  const maker = Keypair.generate();
+  const mint_a = Keypair.generate();
+  const mint_b = Keypair.generate();
+  const escrow = PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("escrow", "utf-8"),
+      maker.publicKey.toBuffer(),
+      new BN(1).toBuffer("le", 8),
+    ],
+    program.programId
+  )[0];
+  const vault = getAssociatedTokenAddressSync(mint_a.publicKey, escrow, true);
+  const maker_ata_a = getAssociatedTokenAddressSync(
+    mint_a.publicKey,
+    maker.publicKey
+  );
+  const accountsPublicKeys = {
+    taker: taker.publicKey,
+    maker: maker.publicKey,
+    mint_a: mint_a.publicKey,
+    mint_b: mint_b.publicKey,
+    escrow,
+    vault,
+    maker_ata_a,
+    associatedTokenprogram: ASSOCIATED_TOKEN_PROGRAM_ID,
 
-    makerAtaA = await createAssociatedTokenAccount(
-      provider.connection,
-      maker,
-      mintA,
-      maker.publicKey
-    );
+    tokenProgram: TOKEN_PROGRAM_ID,
 
-    await mintTo(
-      provider.connection,
-      maker,
-      mintA,
-      makerAtaA,
-      maker,
-      1000 * 10 ** 6 
-    );
+    systemProgram: SystemProgram.programId,
+  };
 
-    [vault] = await PublicKey.findProgramAddressSync(
-      [anchor.utils.bytes.utf8.encode("vault"), maker.publicKey.toBuffer(), seed.toBuffer()],
-      program.programId
-    );
-
-    [escrow] = await PublicKey.findProgramAddressSync(
-      [anchor.utils.bytes.utf8.encode("escrow"), maker.publicKey.toBuffer(), seed.toBuffer()],
-      program.programId
-    );
+  it("setup", async () => {
+    let lamports = await getMinimumBalanceForRentExemptMint(connection);
+    let tx = new Transaction();
+    tx.instructions = [
+      SystemProgram.transfer({
+        fromPubkey: provider.publicKey,
+        toPubkey: taker.publicKey,
+        lamports: 10 * LAMPORTS_PER_SOL,
+      }),
+      SystemProgram.transfer({
+        fromPubkey: provider.publicKey,
+        toPubkey: maker.publicKey,
+        lamports: 10 * LAMPORTS_PER_SOL,
+      }),
+      SystemProgram.createAccount({
+        fromPubkey: provider.publicKey,
+        newAccountPubkey: mint_a.publicKey,
+        lamports,
+        space: MINT_SIZE,
+        programId: TOKEN_PROGRAM_ID,
+      }),
+      SystemProgram.createAccount({
+        fromPubkey: provider.publicKey,
+        newAccountPubkey: mint_b.publicKey,
+        lamports,
+        space: MINT_SIZE,
+        programId: TOKEN_PROGRAM_ID,
+      }),
+      createInitializeMint2Instruction(
+        mint_a.publicKey,
+        2,
+        escrow,
+        null
+      ),
+      createAssociatedTokenAccountIdempotentInstruction(
+        provider.publicKey,
+        vault,
+        escrow,
+        mint_a.publicKey
+      ),
+      createMintToInstruction(
+        mint_a.publicKey,
+        vault,
+        escrow,
+        1000000000
+      ),
+      createInitializeMint2Instruction(
+        mint_a.publicKey,
+        2,
+        maker.publicKey,
+        null
+      ),
+      createAssociatedTokenAccountIdempotentInstruction(
+        provider.publicKey,
+        maker_ata_a,
+        maker.publicKey,
+        mint_a.publicKey
+      ),
+      createMintToInstruction(
+        mint_a.publicKey,
+        maker_ata_a,
+        maker.publicKey,
+        1000000000
+      ),
+    ];
+    console.log(accountsPublicKeys);
+    await provider
+      .sendAndConfirm(tx, [mint_a, mint_b, maker])
+      .then(log)
+      .catch(async (error) => {
+        if (error instanceof SendTransactionError) {
+          await error.getLogs(provider.connection);
+        }
+        console.log(error);
+        throw error;
+      });
   });
 
-  it("should initialize escrow and deposit funds", async () => {
-    try {
-      const depositAmount = new anchor.BN(500 * 10 ** 6);
-      const receiveAmount = new anchor.BN(300 * 10 ** 6);
-
-      await program.methods
-        .make(seed, depositAmount, receiveAmount)
-        .accountsStrict({
-          maker: maker.publicKey,
-          mintA,
-          mintB,
-          makerAtaA,
-          escrow,
-          vault,
-          associatedTokenProgram: anchor.utils.token.ASSOCIATED_PROGRAM_ID,
-          tokenProgram: TOKEN_PROGRAM_ID,
-          systemProgram: SystemProgram.programId,
-        })
-        .signers([maker])
-        .rpc();
-
-      const escrowAccount = await program.account.escrow.fetch(escrow);
-      console.log("Escrow Account: ", escrowAccount);
-
-      const vaultAccount = await provider.connection.getTokenAccountBalance(vault);
-      console.log("Vault Balance: ", vaultAccount.value.amount);
-
-      assert.strictEqual(vaultAccount.value.amount, depositAmount.toString());
-    } catch (error) {
-      console.error("Transaction failed:", error);
-      if (error.logs) {
-        console.error("Logs:", error.logs);
-      }
-    }
+  it("make", async () => {
+    const accounts = {
+      associatedTokenProgram: accountsPublicKeys["associated_token_program"],
+      escrow: accountsPublicKeys["escrow"],
+      maker: accountsPublicKeys["maker"],
+      makerAtaA: accountsPublicKeys["maker_ata_a"],
+      mintA: accountsPublicKeys["mint_a"],
+      mintB: accountsPublicKeys["mint_b"],
+      systemProgram: accountsPublicKeys["system_program"],
+      tokenProgram: accountsPublicKeys["token_program"],
+      vault: accountsPublicKeys["vault"],
+    };
+    await program.methods
+      .make(new BN(1), new BN(1), new BN(2))
+      .accounts({ ...accounts })
+      .signers([maker])
+      .rpc()
+      .then(confirm)
+      .then(log);
   });
 });
