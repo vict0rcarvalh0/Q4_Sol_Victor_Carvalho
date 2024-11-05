@@ -38,7 +38,7 @@ pub struct Stake<'info> {
             metadata_program.key().as_ref(), // defined in the end of the method
             mint.key().as_ref()
         ],
-        seeds::program = metadata_program.key(),
+        seeds::program = metadata_program.key(), // not a pda owned by the program, but by the metadata program
         bump,
         constraint = metadata.collection.as_ref().unwrap().key.as_ref() == collection_mint.key().as_ref(), // to check if our collection matches the metadata collection  
         constraint = metadata.collection.as_ref().unwrap().verified == true, // to check if the nft is verified as part of the collection 
@@ -73,7 +73,7 @@ pub struct Stake<'info> {
         seeds = [b"user".as_ref(), user.key().as_ref()],
         bump = user_account.bump,
     )]
-    pub user_account: Account<'info, UserAccount>,
+    pub user_account: Account<'info, UserAccount>, // passing user account to check if the user has already staked the max amount
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
     pub metadata_program: Program<'info, Metadata>, 
@@ -87,7 +87,7 @@ impl<'info> Stake<'info> {
         self.stake_account.set_inner(StakeAccount {
             owner: self.user.key(),
             mint: self.mint.key(),
-            last_update: Clock::get()?.unix_timestamp,
+            staked_at: Clock::get()?.unix_timestamp,
             bump: bumps.stake_account,
         });
 
