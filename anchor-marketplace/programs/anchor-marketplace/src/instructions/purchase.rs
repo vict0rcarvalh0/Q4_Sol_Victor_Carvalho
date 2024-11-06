@@ -99,4 +99,26 @@ impl<'info> Purchase<'info> {
 
         transfer_checked(cpi_context, 1, self.maker_mint.decimals)?;
     }
+
+    pub fn close_mint_vault(&mut self) -> Result<()> {
+        let seeds = &[
+            &self.marketplace.key().to_bytes()[..],
+            &self.maker_mint.key().to_bytes()[..],
+            &[self.listing.bump]
+        ];
+
+        let signer_seeds = &[&seeds[..]];
+
+        let cpi_program = self.token_program.to_account_info();
+
+        let close_accounts = CloseAccount{
+            account: self.vault.to_account_info(),
+            destination: self.maker.to_account_info(),
+            authority: self.listing.to_account_info()
+        };
+
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, close_accounts, signer_seeds);
+
+        close_accounts(cpi_ctx);
+    }
 }
