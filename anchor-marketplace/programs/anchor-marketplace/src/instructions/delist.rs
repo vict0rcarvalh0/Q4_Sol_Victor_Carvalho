@@ -27,8 +27,8 @@ pub struct Delist<'info> {
     #[account(
         mut,
         close = maker,
-        seeds = [maker.key().as_ref(), maker_mint.key().as_ref()], // why maker mint and not ata?
-        bump, // diff between key() and key?
+        seeds = [maker.key().as_ref(), maker_mint.key().as_ref()],
+        bump,
     )]
     pub listing: Account<'info, Listing>,
     pub token_program: Program<'info, Token>,

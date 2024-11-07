@@ -29,8 +29,8 @@ pub struct List<'info> {
     #[account(
         init,
         payer = maker,
-        seeds = [maker.key().as_ref(), maker_mint.key().as_ref()], // why maker mint and not ata?
-        bump, // diff between key() and key?
+        seeds = [maker.key().as_ref(), maker_mint.key().as_ref()], 
+        bump,
         space = Listing::INIT_SPACE
     )]
     pub listing: Account<'info, Listing>, // stores information about the nft listing

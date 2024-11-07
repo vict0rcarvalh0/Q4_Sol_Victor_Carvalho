@@ -46,7 +46,7 @@ pub struct Purchase<'info> {
 
 impl<'info> Purchase<'info> {
     pub fn send_sol(&self) -> Result<()> {
-        let cpi_program = self.system_program.to_account_info(); // what this method do?
+        let cpi_program = self.system_program.to_account_info();
 
         let cpi_account = Transfer{
             from: self.taker.to_account_info(),
@@ -78,7 +78,7 @@ impl<'info> Purchase<'info> {
     }
 
     pub fn send_nft(&mut self) -> Result<()> {
-        let cpi_program = self.token_program.to_account_info(); // what this method do?
+        let cpi_program = self.token_program.to_account_info(); 
 
         let cpi_accounts = TransferChecked{
             from: self.vault.to_account_info(),
