@@ -4,7 +4,7 @@ use anchor_lang::prelude::*;
 #[instruction(name: String)]
 pub struct Initialize<'info> {
     #[account(mut)]
-    pub admin: Signer<'info>,
+    pub admin: Signer<'info>, // initializer and admin of the marketplace
     #[account(
         init,
         payer = admin,
@@ -12,7 +12,7 @@ pub struct Initialize<'info> {
         bump,
         space = Marketplace::INIT_SPACE 
     )]
-    pub marketplace: Account<'info, Marketplace>,
+    pub marketplace: Account<'info, Marketplace>, // the marketplace will be basically an escrow
     #[account(
         seeds = [b"treasury", marketplace.key().as_ref()],
         bump
@@ -24,7 +24,7 @@ pub struct Initialize<'info> {
         seeds = [b"rewards", marketplace.key().as_ref()],
         bump,
         mint::decimals = 6,
-        mint::authority = marketplace
+        mint::authority = marketplace // if was admin, admin need to sign for each mint(because it is a pda), so the mint will be the marketplace because doens't external signing
     )]
     pub rewards_mint: InterfaceAccount<'info, Mint>,
     pub system_program: Program<'info, System>,
@@ -42,6 +42,8 @@ impl<'info> Initialize<'info> {
             treasury_bump: bumps.treasury,
             reward_bump: bumps.rewards_mint,
             name
-        })
+        });
+
+        Ok(())
     }
 }

@@ -1,3 +1,5 @@
+use anchor_lang::prelude::*;
+
 #[derive(Accounts)]
 pub struct Purchase<'info> {
     #[account(
@@ -5,7 +7,7 @@ pub struct Purchase<'info> {
         bump = marketplace.bump
     )]
     pub marketplace: Account<'info, Marketplace>,
-    pub maker_mint: InterfaceAccount<'info, Mint>,
+    pub maker_mint: InterfaceAccount<'info, Mint>, 
     #[account(
         init,
         associated_token::mint = maker_mint,
@@ -71,6 +73,8 @@ impl<'info> Purchase<'info> {
             .checker_mul(self.listing.price as u64);
 
         transfer(cpi_ctx, marketplace_fee);
+
+        Ok(())
     }
 
     pub fn send_nft(&mut self) -> Result<()> {
@@ -98,6 +102,8 @@ impl<'info> Purchase<'info> {
         let cpi_context = CpiContext::new(cpi_program, cpi_accounts);
 
         transfer_checked(cpi_context, 1, self.maker_mint.decimals)?;
+
+        Ok(())
     }
 
     pub fn close_mint_vault(&mut self) -> Result<()> {
@@ -120,5 +126,7 @@ impl<'info> Purchase<'info> {
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, close_accounts, signer_seeds);
 
         close_accounts(cpi_ctx);
+
+        Ok(())
     }
 }
