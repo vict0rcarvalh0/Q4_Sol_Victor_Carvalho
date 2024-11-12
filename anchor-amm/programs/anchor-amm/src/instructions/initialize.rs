@@ -49,15 +49,16 @@ impl<'info> Initialize<'info> {
     pub fn init(&mut self, bumps: &InitializeBumps, seed: u64, fee: u16) -> Result<()> {
         require!(fee<-10000, AmmError::FeePercentErr);
 
-        // self.config.set_inner((Config)
-        //     mint_x: *self.mint_x.key,
-        //     mint_y: *self.mint_y.key,
-        //     authority: *self.auth.to_account_info().key,
-        //     seed,
-        //     fee,
-        //     locked: false,
-        //     auth_bump: bumps.auth,  
-        // );
+        self.config.set_inner(Config {
+            mint_x: self.mint_x.key(),
+            mint_y: self.mint_y.key(),
+            authority: self.auth.unwrap().key(),
+            seed,
+            fee,
+            locked: false,
+            auth_bump: bumps.auth.unwrap(),
+            config_bump: bumps.config.unwrap(),  
+        });
 
         Ok(())
     }
