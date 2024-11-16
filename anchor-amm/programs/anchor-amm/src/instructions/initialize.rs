@@ -6,30 +6,24 @@ use crate::state::Config;
 pub struct Initialize<'info> {
     #[account(mut)]
     pub initializer: Signer<'info>,
-    pub mint_x: Box<InterfaceAccount<'info, Mint>>,
-    pub mint_y: Box<InterfaceAccount<'info, Mint>>,
+    pub mint_x: Account<'info, Mint>,
+    pub mint_y: Account<'info, Mint>,
 
     #[account(
         init,
         payer = initializer,
         associated_token::mint = mint_x,
-        associated_token::authority = auth,
+        associated_token::authority = config,
     )]
-    pub vault_x: Box<InterfaceAccount<'info, TokenAccount>>,
+    pub vault_x: InterfaceAccount<'info, TokenAccount>,
 
     #[account(
         init,
         payer = initializer,
         associated_token::mint = mint_y,
-        associated_token::authority = auth,
+        associated_token::authority = config,
     )]
-    pub vault_y: Box<InterfaceAccount<'info, TokenAccount>>,
-
-    #[account(
-        seeds = [b"auth"],
-        bump,
-    )]
-    pub auth: UncheckedAccount<'info>,
+    pub vault_y: Account<'info, TokenAccount>,
 
     #[account(
         init,
@@ -40,24 +34,35 @@ pub struct Initialize<'info> {
     )]
     pub config: Account<'info, Config>,
 
-    pub token_program: Interface<'info, TokenInterface>,
+    #[account(
+        init,
+        payer = initializer,
+        seeds = [b"lp", config.key().as_ref()],
+        bump,
+        mint::decimals = 0,
+        mint::authority = 
+    )]
+    pub mint_lp: Account<'info, Mint>,
+
+    pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
 }
 
 impl<'info> Initialize<'info> {
-    pub fn init(&mut self, bumps: &InitializeBumps, seed: u64, fee: u16) -> Result<()> {
+    // initialize token accounts and the pool
+    pub fn init(&mut self, seed: u64, fee: u16, authority: Option<Pubkey>, bumps: &InitializeBumps) -> Result<()> {
         require!(fee<-10000, AmmError::FeePercentErr);
 
         self.config.set_inner(Config {
             mint_x: self.mint_x.key(),
             mint_y: self.mint_y.key(),
-            authority: self.auth.unwrap().key(),
+            authority,
             seed,
             fee,
             locked: false,
-            auth_bump: bumps.auth.unwrap(),
-            config_bump: bumps.config.unwrap(),  
+            config_bump: bumps.config, 
+            lp_bump: bumps.mint_lp 
         });
 
         Ok(())

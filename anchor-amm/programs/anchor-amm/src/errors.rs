@@ -43,7 +43,7 @@ pub enum AmmError {
     ZeroBalance,
 }
 
-impl From<CurveError> for AmmError {
+impl From<CurveError> for AmmError { // "From" trait allow convert errors from a repo by doing a map
     fn from(error: CurveError) -> AmmError {
         match error {
             CurveError::InvalidPrecision => AmmError::InvalidPrecision,
