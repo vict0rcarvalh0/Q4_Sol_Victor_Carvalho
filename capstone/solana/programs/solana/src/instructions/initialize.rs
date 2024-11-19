@@ -41,7 +41,7 @@ impl<'info> Initialize<'info> {
         require!(name.len() > 0 && name.len() < 33, FarmLinkError::NameTooLong);
 
         self.farmlink.set_inner(FarmLink {
-            farmer: self.admin.key(),
+            farmer: self.farmer.key(),
             fee,
             bump: bumps.farmlink,
             treasury_bump: bumps.treasury,
