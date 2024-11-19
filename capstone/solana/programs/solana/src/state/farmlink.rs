@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 // FarmLink state
 #[account]
 pub struct FarmLink {
-    pub admin: Pubkey,
+    pub farmer: Pubkey,
     pub fee: u16,
     pub bump: u8,
     pub treasury_bump: u8,
