@@ -1,11 +1,11 @@
 use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
-pub struct Refund<'info> {
+pub struct Refund {
 
 }
 
-impl<'info> Refund<'info> {
+impl<'info> Refund {
     pub fn refund_consumer(&self) -> Result<()> {
         Ok(())
     }

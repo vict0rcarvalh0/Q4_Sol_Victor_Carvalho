@@ -1,4 +1,8 @@
 use anchor_lang::prelude::*;
+use anchor_spl::{token::Token, token_interface::Mint};
+
+use crate::state::FarmLink;
+use crate::errors::FarmLinkError;
 
 #[derive(Accounts)]
 #[instruction(name: String)]
@@ -37,7 +41,8 @@ pub struct Initialize<'info> {
 }
 
 impl<'info> Initialize<'info> {
-    pub fn init(&mut self, fee: u16, bumps: &InitializeBumps) -> Result<()> {
+    // Initialize the FarmLink
+    pub fn initialize(&mut self, name: String, fee: u16, bumps: &InitializeBumps) -> Result<()> {
         require!(name.len() > 0 && name.len() < 33, FarmLinkError::NameTooLong);
 
         self.farmlink.set_inner(FarmLink {
