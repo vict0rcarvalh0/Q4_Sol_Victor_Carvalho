@@ -41,7 +41,7 @@ pub struct CreateProduct<'info> {
         init,
         payer = farmer,
         associated_token::mint = farmer_mint,
-        associated_token::authority = vault
+        associated_token::authority = product
     )]
     pub vault: InterfaceAccount<'info, TokenAccount>,
 
