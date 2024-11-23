@@ -139,21 +139,20 @@ describe("FarmLink", () => {
   const consumer = Keypair.generate();
   const farmer_mint = Keypair.generate();
   const rewards_mint = Keypair.generate();
-  const product = Keypair.generate();
+  // const product = Keypair.generate();
 
   const farmlink = PublicKey.findProgramAddressSync(
     [Buffer.from("farmlink", "utf-8"), Buffer.from(farmName, "utf-8")],
     program.programId
   )[0];
   const treasury = PublicKey.findProgramAddressSync(
-    [Buffer.from("treasury", "utf-8"), Buffer.from("farmlink", "utf-8")],
+    [Buffer.from("treasury", "utf-8"), farmlink.toBuffer()],
     program.programId
   )[0];
-  
-  // const product = PublicKey.findProgramAddressSync(
-  //   [farmer.publicKey.toBuffer(), Buffer.from("farmer_mint", "utf-8")],
-  //   program.programId
-  // )[0];
+  const product = PublicKey.findProgramAddressSync(
+    [farmer.publicKey.toBuffer(), farmer_mint.publicKey.toBuffer()],
+    program.programId
+  )[0];
   const farmer_ata = getAssociatedTokenAddressSync(
     farmer_mint.publicKey,
     farmer.publicKey
@@ -164,7 +163,7 @@ describe("FarmLink", () => {
   );
   const vault = getAssociatedTokenAddressSync(
     farmer_mint.publicKey,
-    product.publicKey,
+    product,
     true
   );
   const accountsPublicKeys = {
@@ -174,21 +173,19 @@ describe("FarmLink", () => {
     rewards_mint: rewards_mint.publicKey,
     farmlink,
     treasury,
-    product: product.publicKey,
+    product: product,
     farmer_ata,
     consumer_ata,
     vault,
     associatedTokenprogram: ASSOCIATED_TOKEN_PROGRAM_ID,
-
     tokenProgram: TOKEN_PROGRAM_ID,
-
     systemProgram: SystemProgram.programId,
   };
 
   it("setup", async () => {
     let lamports = await getMinimumBalanceForRentExemptMint(connection);
-    let tx = new Transaction();
-    tx.instructions = [
+    let transfer_transactions = new Transaction();
+    transfer_transactions.instructions = [
       SystemProgram.transfer({
         fromPubkey: provider.publicKey,
         toPubkey: farmer.publicKey,
@@ -213,6 +210,10 @@ describe("FarmLink", () => {
         space: MINT_SIZE,
         programId: TOKEN_PROGRAM_ID,
       }),
+    ];
+
+    let tx = new Transaction();
+    tx.instructions = [
       createInitializeMint2Instruction(
         farmer_mint.publicKey,
         6,
@@ -252,26 +253,38 @@ describe("FarmLink", () => {
       createInitializeMint2Instruction(
         farmer_mint.publicKey,
         6,
-        product.publicKey,
+        product,
         null
       ),
       createAssociatedTokenAccountIdempotentInstruction(
         provider.publicKey,
         vault,
-        product.publicKey,
+        product,
         farmer_mint.publicKey
       ),
       createMintToInstruction(
         farmer_mint.publicKey,
         vault,
-        product.publicKey,
+        product,
         1000000000
       ),
     ];
 
     console.log("accountsPublicKeys", accountsPublicKeys);
 
-    const signers = [farmer_mint, rewards_mint, farmer, consumer, product];
+    const transfer_signers = [farmer_mint, rewards_mint];
+    const signers = [farmer, consumer];
+
+    await provider
+      .sendAndConfirm(transfer_transactions, transfer_signers)
+      .then(log)
+      .catch(async (error) => {
+        if (error instanceof SendTransactionError) {
+          await error.getLogs(provider.connection);
+        }
+        console.log(error);
+        throw error;
+      });
 
     await provider
       .sendAndConfirm(tx, signers)
@@ -326,19 +339,19 @@ describe("FarmLink", () => {
     };
 
     await program.methods
-    .initialize(farmName, 1)
-    .accounts({ ...farmlinkAccounts })
-    .signers([farmer])
-    .rpc()
-    .then(confirm)
-    .then(log)
-    .catch(async (error) => {
-      if (error instanceof SendTransactionError) {
-        await error.getLogs(provider.connection);
-      }
-      console.log(error);
-      throw error;
-    });
+      .initialize(farmName, 1)
+      .accounts({ ...farmlinkAccounts })
+      .signers([farmer])
+      .rpc()
+      .then(confirm)
+      .then(log)
+      .catch(async (error) => {
+        if (error instanceof SendTransactionError) {
+          await error.getLogs(provider.connection);
+        }
+        console.log(error);
+        throw error;
+      });
 
     await program.methods
       .createProduct(new BN(1))

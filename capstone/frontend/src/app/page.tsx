@@ -1,77 +1,97 @@
-"use client";
+"use client"
 
-import Image from 'next/image';
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import Image from 'next/image'
+import Link from 'next/link'
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Leaf, ShoppingCart, TrendingUp, Sprout } from 'lucide-react'
 
 export default function Home() {
   return (
-    <div className="bg-white">
+    <div className="bg-background min-h-screen">
       {/* Hero Section */}
       <div className="relative bg-cover bg-center h-[60vh]" style={{ backgroundImage: "url('/agrofield.jpg')" }}>
-        <div className="absolute inset-0 bg-black bg-opacity-10"></div>
-        <WalletMultiButton style={{}} />
-        <div className="relative z-10 text-white text-center p-10">
-          <p className="text-6xl font-medium mb-4">Driving Agricultural Evolution</p>
-          <p className="text-6xl font-medium mb-4">with Innovation</p>
-          <div className="flex justify-center gap-4 mt-6">
-            <button className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#99FF00] duration-300 shadow-md bg-[#B8FF4F] px-6 py-2 rounded-full text-black font-bold">Join Now</button>
-            <button className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#EFEFEF] shadow-md bg-white border border-white px-6 py-2 rounded-full text-black font-bold">Learn Services</button>
+        <div className="absolute inset-0 bg-black/15" />
+        
+        {/* Header */}
+        <header className="relative z-20 flex items-center justify-between p-4">
+          <div className="flex items-center space-x-6">
+            <Link href="/" className="text-white text-2xl font-bold">FarmLink</Link>
+            <Link href="/services" className="text-white hover:text-primary-foreground transition-colors pl-20">Services</Link>
+          </div>
+          <div className="flex items-center space-x-4">
+            <WalletMultiButton />
+            <Button variant="outline" className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#EFEFEF] shadow-md bg-white border border-white px-6 py-2 rounded-full text-black font-bold">Sign Up</Button>
+          </div>
+        </header>
+
+        <div className="relative z-10 container mx-auto flex flex-col items-center justify-center h-full text-center text-white space-y-6">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight">
+            Driving Agricultural Evolution<br />with Innovation
+          </h1>
+          <div className="flex flex-col sm:flex-row gap-4">
+          <button className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#99FF00] duration-300 shadow-md bg-[#B8FF4F] px-6 py-2 rounded-full text-black font-bold">Join Now</button>
+          <button className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#EFEFEF] shadow-md bg-white border border-white px-6 py-2 rounded-full text-black font-bold">Learn Services</button>
           </div>
         </div>
       </div>
 
-      {/* Trusted Companies */}
-      {/* <div className="flex justify-center gap-10 py-8 bg-gray-50">
-        <Image src="/general-mills-logo.png" alt="General Mills" width={100} height={50} />
-        <Image src="/slc-agricola-logo.png" alt="SLC Agricola" width={100} height={50} />
-        <Image src="/cargill-logo.png" alt="Cargill" width={100} height={50} />
-      </div> */}
+      <div className="container mx-auto px-4 py-16 space-y-16">
+        {/* Mission Statement */}
+        <div className="text-center space-y-2">
+          <p className="text-2xl text-muted-foreground">We provide a variety of services that are flexible and tailored to your needs.</p>
+          <p className="text-2xl font-semibold">
+            We are committed to providing the best experience<br />
+            when it comes to agricultural commodities.
+          </p>
+        </div>
 
-      <div className="py-16 px-4 text-center">
-        <p className="text-2xl mb-1 text-[#898989]">We provide a variety of services that are flexible and tailored to your needs.</p>
-        <p className="text-2xl font-semibold mb-1 text-black"> We are commited to providing the best experience when it comes to</p>
-        <p className="text-2xl font-semibold mb-6 text-black"> agricultural commodities.</p>
-      </div>
+        {/* Benefits Section */}
+        <div className="text-center space-y-6 pt-12">
+          <h2 className="text-3xl font-semibold">Benefits of using FarmLink</h2>
+          <ul className="space-y-4 text-muted-foreground max-w-2xl mx-auto text-left list-inside">
+            <li>Farmers can easily tokenize and advertise their crops for sale.</li>
+            <li>Consumers can buy directly from farmers, without middlemen, for personal or enterprise needs.</li>
+            <li>Investors can easily trade the tokenized assets for hedging or other purposes.</li>
+          </ul>
+          <button className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#99FF00] duration-300 shadow-md bg-[#B8FF4F] px-6 py-2 rounded-full text-black font-bold">Join Now</button>
+        </div>
 
-      {/* Benefits Section */}
-      <div className="py-16 px-4 text-center">
-        <h2 className="text-4xl font-semibold mb-6 text-[#3F3F3F]">Benefits by using FarmLink</h2>
-        <ul className="text-[#898989] space-y-4">
-          <li>Farmers can easily tokenize and advertise for sale their crops.</li>
-          <li>
-            Consumers can easily buy directly from farmers, without middlemen, for personal or enterprise needs.
-          </li>
-          <li>
-            Investors can easily trade the tokenized assets for hedging or other purposes.
-          </li>
-        </ul>
-        <button className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#99FF00] duration-300 shadow-md bg-[#B8FF4F] px-6 py-2 rounded-full text-black font-bold mt-10">Join Now</button>
-      </div>
-
-      {/* Services Section */}
-      <div className="py-16 bg-white">
-        <h2 className="text-center text-4xl font-semibold mb-6 text-[#3F3F3F]">Our Services</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 px-12">
-          <div className="rounded-xl p-4 bg-transparent">
-            <div className="flex justify-center items-center pt-4">
-              <Image className="rounded-xl shadow-md" src="/corn.jpg" alt="Buy Agricultural Commodity" width={300} height={200} />
-            </div>
-            <h3 className="mt-4 text-lg font-medium text-center text-black">Buy Agricultural Commodity</h3>
-          </div>
-          <div className="rounded-xl p-4 bg-transparent">
-            <div className="flex justify-center items-center pt-4">
-              <Image className="rounded-xl shadow-md" src="/road.jpg" alt="Sell Agricultural Commodity" width={300} height={200} />
-            </div>
-            <h3 className="mt-4 text-lg font-medium text-center text-black">Sell Agricultural Commodity</h3>
-          </div>
-          <div className="rounded-xl p-4 bg-transparent shadow-md">
-            <h3 className="text-lg font-medium text-center opacity-50 text-black">Coming Soon</h3>
-          </div>
-          <div className="rounded-xl p-4 bg-transparent shadow-md">
-            <h3 className="text-lg font-medium text-center opacity-50 text-black">Coming Soon</h3>
+        {/* Services Section */}
+        <div className="space-y-6 pt-12">
+          <h2 className="text-3xl font-semibold text-center">Our Services</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardContent className="p-6 flex flex-col items-center space-y-4">
+                <Image className="rounded-lg object-cover" src="/corn.jpg" alt="Buy Agricultural Commodity" width={300} height={200} />
+                <h3 className="text-lg font-medium">Buy Agricultural Commodity</h3>
+                <ShoppingCart className="h-6 w-6 text-primary" />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6 flex flex-col items-center space-y-4">
+                <Image className="rounded-lg object-cover" src="/road.jpg" alt="Sell Agricultural Commodity" width={300} height={200} />
+                <h3 className="text-lg font-medium">Sell Agricultural Commodity</h3>
+                <TrendingUp className="h-6 w-6 text-primary" />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6 flex flex-col items-center justify-center space-y-4 h-full">
+                <Sprout className="h-24 w-24 text-primary" />
+                <h3 className="text-lg font-medium text-center">Coming Soon</h3>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6 flex flex-col items-center justify-center space-y-4 h-full">
+                <Leaf className="h-24 w-24 text-primary" />
+                <h3 className="text-lg font-medium text-center">Coming Soon</h3>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }
+
