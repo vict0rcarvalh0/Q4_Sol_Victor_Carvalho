@@ -50,7 +50,7 @@ export default function Home() {
 
         {/* Benefits Section */}
         <div className="text-center space-y-6 pt-12">
-          <h2 className="text-3xl font-semibold">Benefits of using FarmLink</h2>
+          <h2 className="text-3xl font-semibold">Benefits by using FarmLink</h2>
           <ul className="space-y-4 text-muted-foreground max-w-2xl mx-auto text-left list-inside">
             <li>Farmers can easily tokenize and advertise their crops for sale.</li>
             <li>Consumers can buy directly from farmers, without middlemen, for personal or enterprise needs.</li>

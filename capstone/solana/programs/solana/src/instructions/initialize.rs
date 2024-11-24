@@ -35,6 +35,13 @@ pub struct Initialize<'info> {
     )]
     pub rewards_mint: InterfaceAccount<'info, Mint>,
 
+    #[account(
+        mut,
+        seeds = [b"vault", farmer.key().as_ref(), system_program.key().as_ref()],
+        bump
+    )]
+    pub sol_vault: SystemAccount<'info>,
+
     pub system_program: Program<'info, System>,
 
     pub token_program: Program<'info, Token>,

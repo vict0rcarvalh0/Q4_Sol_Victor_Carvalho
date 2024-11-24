@@ -32,6 +32,7 @@ pub mod solana {
     // Purchase product
     pub fn purchase_product(ctx: Context<Purchase>) -> Result<()> {
         ctx.accounts.send_sol_to_vault()?;
+        ctx.accounts.send_fee_to_treasury()?;
         ctx.accounts.send_token_to_consumer()?;
         ctx.accounts.close_mint_vault()?;
         Ok(())
