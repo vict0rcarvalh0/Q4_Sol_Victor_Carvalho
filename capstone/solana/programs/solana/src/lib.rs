@@ -2,12 +2,12 @@ use anchor_lang::prelude::*;
 
 declare_id!("3vJaEJMGZ6yiRtpxgctoxqnsUu73PRUJP5tJAUyCVPRX");
 
-pub mod state;
-pub mod instructions;
 pub mod errors;
+pub mod instructions;
+pub mod state;
 
-pub use instructions::*;
 pub use errors::*;
+pub use instructions::*;
 
 #[program]
 pub mod solana {
@@ -47,5 +47,4 @@ pub mod solana {
     // Refund consumer
 
     // Refund farmer
-
 }

@@ -12,5 +12,5 @@ pub struct FarmLink {
 }
 
 impl Space for FarmLink {
-    const INIT_SPACE: usize = 8 + 32 + 2 + 3 + (4*32); 
+    const INIT_SPACE: usize = 8 + 32 + 2 + 3 + (4 * 32);
 }

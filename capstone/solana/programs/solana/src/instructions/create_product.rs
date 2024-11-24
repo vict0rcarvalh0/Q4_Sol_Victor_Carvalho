@@ -1,11 +1,13 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
-    associated_token::AssociatedToken, token::Token, token_interface::{transfer_checked, Mint, TokenAccount, TransferChecked }
+    associated_token::AssociatedToken,
+    token::Token,
+    token_interface::{transfer_checked, Mint, TokenAccount, TransferChecked},
 };
 
 use crate::state::{
-    Product, 
-    FarmLink
+    FarmLink,
+    Product
 };
 
 #[derive(Accounts)]
@@ -24,7 +26,7 @@ pub struct CreateProduct<'info> {
     #[account(
         init,
         payer = farmer,
-        seeds = [farmer.key().as_ref(), farmer_mint.key().as_ref()], 
+        seeds = [farmlink.key().as_ref(), farmer_mint.key().as_ref()],
         bump,
         space = Product::INIT_SPACE
     )]
@@ -47,7 +49,7 @@ pub struct CreateProduct<'info> {
 
     pub system_program: Program<'info, System>,
     pub associated_token_program: Program<'info, AssociatedToken>,
-    pub token_program: Program<'info, Token>
+    pub token_program: Program<'info, Token>,
 }
 
 impl<'info> CreateProduct<'info> {
@@ -66,7 +68,7 @@ impl<'info> CreateProduct<'info> {
     // Deposit token from the farmer to the vault
     pub fn deposit_token_to_vault(&mut self) -> Result<()> {
         let cpi_program = self.token_program.to_account_info();
-        let cpi_accounts = TransferChecked{
+        let cpi_accounts = TransferChecked {
             from: self.farmer_ata.to_account_info(),
             mint: self.farmer_mint.to_account_info(),
             to: self.vault.to_account_info(),

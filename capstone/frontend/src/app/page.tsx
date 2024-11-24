@@ -11,14 +11,15 @@ export default function Home() {
   return (
     <div className="bg-background min-h-screen">
       {/* Hero Section */}
-      <div className="relative bg-cover bg-center h-[60vh]" style={{ backgroundImage: "url('/agrofield.jpg')" }}>
-        <div className="absolute inset-0 bg-black/15" />
+      <div className="relative bg-cover bg-center h-[60vh]" style={{ backgroundImage: "url('/agrofieldcut.png')" }}>
+        <div className="absolute inset-0 bg-black/0" />
         
         {/* Header */}
         <header className="relative z-20 flex items-center justify-between p-4">
           <div className="flex items-center space-x-6">
             <Link href="/" className="text-white text-2xl font-bold">FarmLink</Link>
-            <Link href="/services" className="text-white hover:text-primary-foreground transition-colors pl-20">Services</Link>
+            <Leaf className="w-4 h-4 mr-2 text-white" />
+            <Link href="/services" className="text-white font-bold hover:text-primary-foreground transition-colors pl-20">Services</Link>
           </div>
           <div className="flex items-center space-x-4">
             <WalletMultiButton />

@@ -68,7 +68,7 @@ export default function Home() {
                 <Leaf className="w-4 h-4 mr-2" />
                 Get Sustainability Certification
               </Button>
-              <Button type="submit" className="w-full sm:w-auto">Submit</Button>
+              <Button type="submit" className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105 hover:bg-[#99FF00] duration-300 shadow-md bg-[#B8FF4F] px-28 py-2 rounded-md text-black font-bold">Submit</Button>
             </div>
           </form>
         </CardContent>

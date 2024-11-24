@@ -1,11 +1,12 @@
 use anchor_lang::prelude::*;
-use anchor_spl::{token::Token, token_interface::{
-    burn, transfer, Burn, Mint, TokenAccount, Transfer
-}};
+use anchor_spl::{
+    token::Token,
+    token_interface::{burn, transfer, Burn, Mint, TokenAccount, Transfer},
+};
 
 use crate::state::{
-    Product, 
-    FarmLink
+    FarmLink, 
+    Product
 };
 
 #[derive(Accounts)]
@@ -33,7 +34,7 @@ pub struct Deliver<'info> {
     consumer_ata: InterfaceAccount<'info, TokenAccount>,
 
     #[account(
-        seeds = [b"farmlink", farmlink.name.as_str().as_ref()],
+        seeds = [b"farmlink", farmlink.name.as_str().as_bytes()],
         bump = farmlink.bump
     )]
     pub farmlink: Account<'info, FarmLink>,
@@ -41,8 +42,8 @@ pub struct Deliver<'info> {
     #[account(
         mut,
         close = farmer,
-        seeds = [farmer.key().as_ref(), farmer_mint.key().as_ref()],
-        bump,
+        seeds = [farmlink.key().as_ref(), farmer_mint.key().as_ref()],
+        bump = product.bump,
     )]
     pub product: Box<Account<'info, Product>>,
 
@@ -79,19 +80,22 @@ impl<'info> Deliver<'info> {
 
     // Transfer funds from the vault to the farmer
     pub fn transfer_vault_funds_to_farmer(&self) -> Result<()> {
-        let cpi_program = self.system_program.to_account_info();
+        let farmer_binding = self.farmer.key();
+        let farmer_mint_binding = self.farmer_mint.key();
+        let seeds = &[farmer_binding.as_ref(), farmer_mint_binding.as_ref(), &[self.product.bump]];
+        let signer_seeds = &[&seeds[..]];
 
-        let cpi_account = Transfer{
+        let cpi_program = self.token_program.to_account_info();
+
+        let cpi_accounts = Transfer {
             from: self.vault.to_account_info(),
             to: self.farmer_ata.to_account_info(),
             authority: self.product.to_account_info(),
         };
 
-        let cpi_ctx = CpiContext::new(cpi_program, cpi_account);
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
 
-        let amount = self.product.price.checked_sub(self.farmlink.fee as u64).unwrap();
-
-        transfer(cpi_ctx, amount)?;
+        transfer(cpi_ctx, 1)?;
 
         Ok(())
     }
