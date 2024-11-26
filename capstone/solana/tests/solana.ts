@@ -14,7 +14,6 @@ import {
   getOrCreateAssociatedTokenAccount,
   mintTo,
   getAssociatedTokenAddress,
-  createApproveInstruction,
 } from "@solana/spl-token";
 
 import { Solana } from "../target/types/solana";
