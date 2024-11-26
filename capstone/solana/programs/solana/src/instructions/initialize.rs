@@ -37,7 +37,7 @@ pub struct Initialize<'info> {
 
     #[account(
         mut,
-        seeds = [b"vault", farmer.key().as_ref(), system_program.key().as_ref()],
+        seeds = [b"sol_vault", farmlink.key().as_ref()],
         bump
     )]
     pub sol_vault: SystemAccount<'info>,
@@ -61,6 +61,7 @@ impl<'info> Initialize<'info> {
             bump: bumps.farmlink,
             treasury_bump: bumps.treasury,
             reward_bump: bumps.rewards_mint,
+            sol_vault_bump: bumps.sol_vault,
             name,
         });
 

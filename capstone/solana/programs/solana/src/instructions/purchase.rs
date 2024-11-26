@@ -3,7 +3,9 @@ use anchor_lang::{
     system_program::{transfer, Transfer},
 };
 use anchor_spl::{
-    associated_token::AssociatedToken, token::{close_account, CloseAccount}, token_interface::{transfer_checked, Mint, TokenAccount, TokenInterface, TransferChecked}
+    associated_token::AssociatedToken,
+    token::{close_account, CloseAccount},
+    token_interface::{transfer_checked, Mint, TokenAccount, TokenInterface, TransferChecked},
 };
 
 use crate::state::{FarmLink, Product};
@@ -37,8 +39,8 @@ pub struct Purchase<'info> {
 
     #[account(
         mut,
-        seeds = [b"vault", farmer.key().as_ref(), system_program.key().as_ref()],
-        bump
+        seeds = [b"sol_vault", farmlink.key().as_ref()],
+        bump = farmlink.sol_vault_bump,
     )]
     sol_vault: SystemAccount<'info>,
 
@@ -73,19 +75,15 @@ pub struct Purchase<'info> {
 impl<'info> Purchase<'info> {
     // Send the SOL to the vault and the farmlink fee to the treasury
     pub fn send_sol_to_vault(&self) -> Result<()> {
-        msg!("CPI program definition");
         let cpi_program = self.system_program.to_account_info();
 
-        msg!("CPI accounts definition");
         let cpi_account = Transfer {
             from: self.consumer.to_account_info(),
             to: self.sol_vault.to_account_info(),
         };
 
-        msg!("Creating CPI context");
         let cpi_ctx = CpiContext::new(cpi_program, cpi_account);
 
-        msg!("Setting amount to transfer");
         let amount = self
             .product
             .price
@@ -94,26 +92,21 @@ impl<'info> Purchase<'info> {
             .checked_div(10000)
             .unwrap();
 
-        msg!("Transfering SOL to vault");
         transfer(cpi_ctx, self.product.price - amount)?;
 
         Ok(())
     }
 
     pub fn send_fee_to_treasury(&self) -> Result<()> {
-        msg!("CPI Program definition");
         let cpi_program: AccountInfo<'_> = self.system_program.to_account_info();
 
-        msg!("CPI accounts definition");
         let cpi_account = Transfer {
             from: self.consumer.to_account_info(),
             to: self.treasury.to_account_info(),
         };
 
-        msg!("Creating CPI context");
         let cpi_ctx = CpiContext::new(cpi_program, cpi_account);
 
-        msg!("Setting amount to transfer");
         let amount = self
             .product
             .price
@@ -122,7 +115,6 @@ impl<'info> Purchase<'info> {
             .checked_div(10000)
             .unwrap();
 
-        msg!("Transfering marketplace fee to treasury");
         transfer(cpi_ctx, amount)?;
 
         Ok(())
@@ -138,10 +130,8 @@ impl<'info> Purchase<'info> {
         ];
         let signer_seeds = &[&seeds[..]];
 
-        msg!("CPI program definition");
         let cpi_program = self.token_program.to_account_info();
 
-        msg!("CPI accounts definition");
         let cpi_accounts = TransferChecked {
             from: self.spl_vault.to_account_info(),
             mint: self.farmer_mint.to_account_info(),
@@ -149,10 +139,8 @@ impl<'info> Purchase<'info> {
             authority: self.product.to_account_info(),
         };
 
-        msg!("Creating CPI context");
         let cpi_context = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
 
-        msg!("Transfering token to consumer");
         transfer_checked(cpi_context, 1, self.farmer_mint.decimals)?;
 
         Ok(())
@@ -178,7 +166,7 @@ impl<'info> Purchase<'info> {
 
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, close_accounts, signer_seeds);
 
-        close_account(cpi_ctx);
+        close_account(cpi_ctx)?;
 
         Ok(())
     }

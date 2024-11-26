@@ -17,6 +17,7 @@ pub struct Deliver<'info> {
     #[account(mut)]
     pub farmer: Signer<'info>,
 
+    #[account(mut)]
     pub farmer_mint: InterfaceAccount<'info, Mint>,
 
     #[account(
@@ -31,7 +32,7 @@ pub struct Deliver<'info> {
         associated_token::mint = farmer_mint,
         associated_token::authority = consumer,
     )]
-    consumer_ata: InterfaceAccount<'info, TokenAccount>,
+    pub consumer_ata: InterfaceAccount<'info, TokenAccount>,
 
     #[account(
         seeds = [b"farmlink", farmlink.name.as_str().as_bytes()],
@@ -41,10 +42,10 @@ pub struct Deliver<'info> {
 
     #[account(
         mut,
-        seeds = [b"vault", farmer.key().as_ref(), system_program.key().as_ref()],
-        bump
+        seeds = [b"sol_vault", farmlink.key().as_ref()],
+        bump = farmlink.sol_vault_bump
     )]
-    sol_vault: SystemAccount<'info>,
+    pub sol_vault: SystemAccount<'info>,
 
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
@@ -80,13 +81,12 @@ impl<'info> Deliver<'info> {
 
     // Transfer funds from the vault to the farmer
     pub fn transfer_vault_funds_to_farmer(&self) -> Result<()> {
-        let farmer_binding = self.farmer.key();
-        let farmer_mint_binding = self.farmer_mint.key();
-        
         let seeds = &[
-            farmer_binding.as_ref(),
-            farmer_mint_binding.as_ref(),
-            &[self.product.bump]];
+            b"sol_vault",
+            &self.farmlink.key().to_bytes()[..],
+            &[self.farmlink.sol_vault_bump],
+        ];
+
         let signer_seeds = &[&seeds[..]];
 
         let cpi_program = self.token_program.to_account_info();
