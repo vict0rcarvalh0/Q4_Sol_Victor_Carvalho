@@ -43,6 +43,9 @@ describe("FarmLink", () => {
   };
 
   const farmName = "smallfarm";
+  const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
+    "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+  );
 
   // Accounts
   let farmer = Keypair.generate();
@@ -64,6 +67,7 @@ describe("FarmLink", () => {
   let product: PublicKey;
   let treasury: PublicKey;
   let rewardsMint: PublicKey;
+  let metadataAccount: PublicKey;
 
   let accountsPublicKeys = {};
 
@@ -205,6 +209,15 @@ describe("FarmLink", () => {
         program.programId
       )[0];
 
+      metadataAccount = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from("metadata"),
+          TOKEN_METADATA_PROGRAM_ID.toBuffer(),
+          farmerMint.toBuffer(),
+        ],
+        TOKEN_METADATA_PROGRAM_ID
+      )[0];
+
       accountsPublicKeys = {
         farmer: farmer.publicKey,
         consumer: consumer.publicKey,
@@ -217,10 +230,13 @@ describe("FarmLink", () => {
         sol_vault: solVault,
         farmlink: farmLink,
         treasury: treasury,
+        metadata_account: metadataAccount,
+        rewards_mint: rewardsMint,
         system_program: SystemProgram.programId,
         token_program: TOKEN_PROGRAM_ID,
         associated_token_program: ASSOCIATED_TOKEN_PROGRAM_ID,
-        rewards_mint: rewardsMint,
+        rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+        token_metadata_program_id: TOKEN_METADATA_PROGRAM_ID,
       };
 
       //   const consumerBalance = await connection.getBalance(consumer.publicKey);
@@ -246,13 +262,22 @@ describe("FarmLink", () => {
       treasury: accountsPublicKeys["treasury"],
     };
 
-    await program.methods
-      .initialize(farmName, 1)
-      .accounts({ ...accounts })
-      .signers([farmer])
-      .rpc()
-      .then(confirm)
-      .then(log);
+    try {
+      await program.methods
+        .initialize(farmName, 1)
+        .accounts({ ...accounts })
+        .signers([farmer])
+        .rpc()
+        .then(confirm)
+        .then(log);
+    } catch (error) {
+      if (error instanceof SendTransactionError) {
+        const logs = await error.getLogs(provider.connection);
+        console.log("Transaction Logs:", logs);
+      }
+      console.log(error);
+      throw error;
+    }
   });
 
   it("create_product", async () => {
@@ -264,9 +289,12 @@ describe("FarmLink", () => {
       farmerAta: accountsPublicKeys["farmer_ata"],
       splVault: accountsPublicKeys["spl_vault"],
       solVault: accountsPublicKeys["sol_vault"],
+      metadataAccount: accountsPublicKeys["metadata_account"],
+      rent: accountsPublicKeys["rent"],
       associatedTokenProgram: accountsPublicKeys["associated_token_program"],
       systemProgram: accountsPublicKeys["system_program"],
       tokenProgram: accountsPublicKeys["token_program"],
+      tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
     };
 
     await program.methods
