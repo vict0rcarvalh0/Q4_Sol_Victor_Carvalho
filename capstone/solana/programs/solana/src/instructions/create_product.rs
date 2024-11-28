@@ -31,10 +31,15 @@ pub struct CreateProduct<'info> {
     pub product: Box<Account<'info, Product>>,
 
     /// CHECK: because the metadata account by metaplex don't follow a known structure in anchor
-    #[account(mut)]
-    pub metadata_account: AccountInfo<'info>,
+    #[account(
+        mut,
+        seeds = [b"metadata", metadata_program.key().as_ref(), farmer_mint.key().as_ref()],
+        bump,
+        seeds::program = metadata_program.key(),
+    )]
+    pub metadata_account: UncheckedAccount<'info>,
 
-    pub token_metadata_program: Program<'info, Metadata>,
+    pub metadata_program: Program<'info, Metadata>,
 
     #[account(
         mut,
@@ -61,11 +66,7 @@ pub struct CreateProduct<'info> {
 }
 
 impl<'info> CreateProduct<'info> {
-    pub fn create_product(&mut self, price: u64, bumps: &CreateProductBumps) -> Result<()> {
-        // msg!("Metadata account: {:?}", self.metadata_account.key());
-        // msg!("Farmer mint: {:?}", self.farmer_mint.key());
-        // msg!("Farmer: {:?}", self.farmer.key());
-
+    pub fn create_product(&mut self, price: u64, bumps: &CreateProductBumps, token_name: String, token_symbol: String, token_uri: String) -> Result<()> {
         self.product.set_inner(Product {
             farmer: self.farmer.key(),
             mint: self.farmer_mint.key(),
@@ -73,7 +74,6 @@ impl<'info> CreateProduct<'info> {
             bump: bumps.product,
         });
 
-        // Criar metadados
         let creators = vec![mpl_token_metadata::types::Creator {
             address: self.farmer.key(),
             verified: true,
@@ -81,9 +81,9 @@ impl<'info> CreateProduct<'info> {
         }];
 
         let data = mpl_token_metadata::types::DataV2 {
-            name: "Coffee".to_string(),
-            symbol: "CAFE".to_string(),
-            uri: "https://example.com/metadata.json".to_string(),
+            name: token_name,
+            symbol: token_symbol,
+            uri: token_uri,
             seller_fee_basis_points: 500,
             creators: Some(creators),
             collection: None,
@@ -100,7 +100,7 @@ impl<'info> CreateProduct<'info> {
             system_program: self.system_program.to_account_info(),
         };
 
-        let cpi_context = CpiContext::new(self.token_metadata_program.to_account_info(), cpi_accounts);
+        let cpi_context = CpiContext::new(self.metadata_program.to_account_info(), cpi_accounts);
 
         create_metadata_accounts_v3(
             cpi_context,

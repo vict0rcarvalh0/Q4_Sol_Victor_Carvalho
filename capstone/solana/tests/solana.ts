@@ -18,6 +18,10 @@ import {
 
 import { Solana } from "../target/types/solana";
 
+const METADATA_PROGRAM_ID = new PublicKey(
+  "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+);
+
 describe("FarmLink", () => {
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
@@ -43,9 +47,11 @@ describe("FarmLink", () => {
   };
 
   const farmName = "smallfarm";
-  const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
-    "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
-  );
+  const metadata = {
+    name: 'Fresh Strawberries',
+    symbol: 'STRW',
+    uri: 'https://red-chilly-carp-862.mypinata.cloud/ipfs/QmbJWAESqCsf4RFCqEY7jecCashj8usXiyDNfKtZCwwzGb',
+  };
 
   // Accounts
   let farmer = Keypair.generate();
@@ -212,10 +218,10 @@ describe("FarmLink", () => {
       metadataAccount = PublicKey.findProgramAddressSync(
         [
           Buffer.from("metadata"),
-          TOKEN_METADATA_PROGRAM_ID.toBuffer(),
+          METADATA_PROGRAM_ID.toBuffer(),
           farmerMint.toBuffer(),
         ],
-        TOKEN_METADATA_PROGRAM_ID
+        METADATA_PROGRAM_ID
       )[0];
 
       accountsPublicKeys = {
@@ -236,7 +242,7 @@ describe("FarmLink", () => {
         token_program: TOKEN_PROGRAM_ID,
         associated_token_program: ASSOCIATED_TOKEN_PROGRAM_ID,
         rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-        token_metadata_program_id: TOKEN_METADATA_PROGRAM_ID,
+        metadata_program_id: METADATA_PROGRAM_ID,
       };
 
       //   const consumerBalance = await connection.getBalance(consumer.publicKey);
@@ -294,11 +300,11 @@ describe("FarmLink", () => {
       associatedTokenProgram: accountsPublicKeys["associated_token_program"],
       systemProgram: accountsPublicKeys["system_program"],
       tokenProgram: accountsPublicKeys["token_program"],
-      tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+      metadataProgram: METADATA_PROGRAM_ID,
     };
 
     await program.methods
-      .createProduct(new BN(1 * LAMPORTS_PER_SOL))
+      .createProduct(new BN(1 * LAMPORTS_PER_SOL), metadata.name, metadata.symbol, metadata.uri)
       .accounts({ ...accounts })
       .signers([farmer])
       .rpc()

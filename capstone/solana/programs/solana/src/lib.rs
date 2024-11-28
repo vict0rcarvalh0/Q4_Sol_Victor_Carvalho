@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("3vJaEJMGZ6yiRtpxgctoxqnsUu73PRUJP5tJAUyCVPRX");
+declare_id!("FNkU8cgDKePrpyMeVoxZ8CvEJRHkuXReNq2YpsM48SrL");
 
 pub mod errors;
 pub mod instructions;
@@ -23,8 +23,8 @@ pub mod solana {
     }
 
     // Create product
-    pub fn create_product(ctx: Context<CreateProduct>, price: u64) -> Result<()> {
-        ctx.accounts.create_product(price, &ctx.bumps)?;
+    pub fn create_product(ctx: Context<CreateProduct>, price: u64, token_name: String, token_symbol: String, token_uri: String) -> Result<()> {
+        ctx.accounts.create_product(price, &ctx.bumps,token_name, token_symbol, token_uri)?;
         ctx.accounts.deposit_token_to_vault()?;
         Ok(())
     }

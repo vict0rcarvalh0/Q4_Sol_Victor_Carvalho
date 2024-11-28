@@ -5,7 +5,7 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-solana = "3vJaEJMGZ6yiRtpxgctoxqnsUu73PRUJP5tJAUyCVPRX"
+solana = "FNkU8cgDKePrpyMeVoxZ8CvEJRHkuXReNq2YpsM48SrL"
 
 [registry]
 url = "https://api.apr.dev"
@@ -17,7 +17,16 @@ wallet = "/home/victorcarvalho/.config/solana/id.json"
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
 
+[test]
+startup_wait = 5000
+shutdown_wait = 2000
+upgradeable = false
+
 [test.validator]
-[[test.genesis]]
-address = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"  
-program = "tests/metaplex_token_metadata_program.so"
+bind_address = "0.0.0.0"
+url = "https://api.mainnet-beta.solana.com"
+ledger = ".anchor/test-ledger"
+rpc_port = 8899
+
+[[test.validator.clone]]
+address = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
