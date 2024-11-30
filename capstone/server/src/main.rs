@@ -4,7 +4,10 @@ mod controllers;
 mod db;
 
 use axum::{routing::get, routing::post, Router};
-use controllers::farmer_controller::{create_farmer, delete_farmer, get_farmer, update_farmer};
+use controllers::{
+    farmer_controller::{create_farmer, delete_farmer, get_farmer, update_farmer},
+    product_controller::{create_product, delete_product, get_product, update_product}
+};
 use dotenv::dotenv;
 use std::env;
 use std::sync::Arc;
@@ -27,8 +30,15 @@ async fn main() -> anyhow::Result<()> {
     let shared_pool = Arc::new(pool);
 
     let app = Router::new()
+        // Farmer Routes
         .route("/farmer", post(create_farmer))
         .route("/farmer/:id", get(get_farmer).delete(delete_farmer).put(update_farmer))
+        
+        // Product Routes
+        .route("/product", post(create_product))
+        .route("/product/:id", get(get_product).put(update_product).delete(delete_product))
+        
+        // Health Check Route
         .route("/health", get(|| async { "Healthy!" }))
         .with_state(shared_pool);
 

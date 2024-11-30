@@ -23,12 +23,12 @@ CREATE TABLE products (
     description TEXT,
     category TEXT,
     unit TEXT NOT NULL,
-    total_amount DECIMAL(10, 2) NOT NULL,
-    price_per_unit DECIMAL(10, 2) NOT NULL,
-    available_quantity DECIMAL(10, 2) NOT NULL,
+    total_amount FLOAT NOT NULL,
+    price_per_unit FLOAT NOT NULL,
+    available_quantity FLOAT NOT NULL,
     status TEXT NOT NULL CHECK (status IN ('available', 'sold_out', 'inactive')),
     farmer_id UUID NOT NULL REFERENCES farmers(id) ON DELETE CASCADE,
-    created_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP NOT NULL
 );
 
 -- Create product_buyers join table to track buyers for products
