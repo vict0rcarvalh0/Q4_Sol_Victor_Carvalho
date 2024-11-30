@@ -1,5 +1,5 @@
 import './globals.css';
-import AppWalletProvider from "./components/AppWalletProvider";
+import AppWalletProvider from "../components/AppWalletProvider";
 
 export const metadata = {
   title: 'FarmLink',

@@ -1,15 +1,16 @@
 version: '3.8'
 services:
   postgres:
-    image: postgres:15
-    container_name: rust_postgres
+    image: postgres:latest
+    container_name: "farmlink_postgres"
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
-      POSTGRES_USER: rust_user
-      POSTGRES_PASSWORD: rust_password
-      POSTGRES_DB: rust_db
+      POSTGRES_USER: farmlink
+      POSTGRES_PASSWORD: farmlink
+      POSTGRES_DB: farmlink
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - "./static/schema/init.sql:/docker-entrypoint-initdb.d/001-schema.sql"
+
 volumes:
   postgres_data:
