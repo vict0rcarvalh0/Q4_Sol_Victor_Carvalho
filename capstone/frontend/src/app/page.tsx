@@ -1,29 +1,56 @@
-"use client"
+'use client'
 
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Leaf, ShoppingCart, TrendingUp, Sprout } from 'lucide-react'
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
+import { useWallet } from '@solana/wallet-adapter-react'
+import { SignUpModal } from '@/components/SignUpModal'
+import { Toaster } from '@/components/ui/toaster'
 
 export default function Home() {
+  const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false)
+  const { connected } = useWallet()
+
+  useEffect(() => {
+    if (connected) {
+      setIsSignUpModalOpen(false)
+    }
+  }, [connected])
+
   return (
     <div className="bg-background min-h-screen">
       {/* Hero Section */}
       <div className="relative bg-cover bg-center h-[60vh]" style={{ backgroundImage: "url('/agrofieldcut.png')" }}>
-        <div className="absolute inset-0 bg-black/0" />
-        
         {/* Header */}
         <header className="relative z-20 flex items-center justify-between p-4">
           <div className="flex items-center space-x-6">
             <Link href="/" className="text-white text-2xl font-bold">FarmLink</Link>
-            <Leaf className="w-4 h-4 mr-2 text-white" />
-            <Link href="/services" className="text-white font-bold hover:text-primary-foreground transition-colors pl-20">Services</Link>
+            <Leaf className="w-4 h-4 text-white" />
+            <nav className="flex items-center space-x-4">
+              <Link href="/services" className="ml-16 mr-4 text-white font-bold hover:text-primary-foreground transition-colors">Services</Link>
+              {connected && (
+                <>
+                  <Link href="/marketplace" className="mr-4 text-white font-bold hover:text-primary-foreground transition-colors">Marketplace</Link>
+                  <Link href="/farmer" className="mr-4 text-white font-bold hover:text-primary-foreground transition-colors">Farmer</Link>
+                </>
+              )}
+            </nav>
           </div>
           <div className="flex items-center space-x-4">
-            <WalletMultiButton />
-            <Button variant="outline" className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#EFEFEF] shadow-md bg-white border border-white px-6 py-2 rounded-full text-black font-bold">Sign Up</Button>
+            <WalletMultiButton style={{}} />
+            {!connected && (
+              <Button 
+                variant="outline" 
+                className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#EFEFEF] shadow-md bg-white border border-white px-6 py-2 rounded-full text-black font-bold"
+                onClick={() => setIsSignUpModalOpen(true)}
+              >
+                Sign Up
+              </Button>
+            )}
           </div>
         </header>
 
@@ -32,8 +59,8 @@ export default function Home() {
             Driving Agricultural Evolution<br />with Innovation
           </h1>
           <div className="flex flex-col sm:flex-row gap-4">
-          <button className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#99FF00] duration-300 shadow-md bg-[#B8FF4F] px-6 py-2 rounded-full text-black font-bold">Join Now</button>
-          <button className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#EFEFEF] shadow-md bg-white border border-white px-6 py-2 rounded-full text-black font-bold">Learn Services</button>
+            <button className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#99FF00] duration-300 shadow-md bg-[#B8FF4F] px-6 py-2 rounded-full text-black font-bold">Join Now</button>
+            <button className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#EFEFEF] shadow-md bg-white border border-white px-6 py-2 rounded-full text-black font-bold">Learn Services</button>
           </div>
         </div>
       </div>
@@ -92,6 +119,12 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      <SignUpModal 
+        isOpen={isSignUpModalOpen} 
+        onClose={() => setIsSignUpModalOpen(false)} 
+      />
+      <Toaster />
     </div>
   )
 }
