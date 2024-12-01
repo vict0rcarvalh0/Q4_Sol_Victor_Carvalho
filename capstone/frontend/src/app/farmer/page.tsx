@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Leaf, ArrowUpDown, History, X } from 'lucide-react'
+import { Leaf, ArrowUpDown, History, X, Truck } from 'lucide-react'
+import { DeliverModal } from "@/components/DeliverModal"
 
 export default function Home() {
   const [products] = useState([
@@ -32,6 +33,14 @@ export default function Home() {
       isClosed: true,
     },
   ])
+
+  const [deliverModalOpen, setDeliverModalOpen] = useState(false)
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(null)
+
+  const handleDeliverClick = (productId: number) => {
+    setSelectedProductId(productId)
+    setDeliverModalOpen(true)
+  }
 
   return (
     <div className="container mx-auto p-6 space-y-12">
@@ -108,10 +117,16 @@ export default function Home() {
                       Closed
                     </Button>
                   ) : (
-                    <Button variant="destructive" className="w-full md:w-auto">
-                      <ArrowUpDown className="w-4 h-4 mr-2" />
-                      Remove from Catalog
-                    </Button>
+                    <>
+                      <Button variant="destructive" className="w-full md:w-auto">
+                        <ArrowUpDown className="w-4 h-4 mr-2" />
+                        Remove from Catalog
+                      </Button>
+                      <Button variant="outline" className="w-full md:w-auto" onClick={() => handleDeliverClick(product.id)}>
+                        <Truck className="w-4 h-4 mr-2" />
+                        Deliver
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>
@@ -119,6 +134,12 @@ export default function Home() {
           </Card>
         ))}
       </div>
+
+      <DeliverModal
+        isOpen={deliverModalOpen}
+        onClose={() => setDeliverModalOpen(false)}
+        productId={selectedProductId || 0}
+      />
     </div>
   )
 }
