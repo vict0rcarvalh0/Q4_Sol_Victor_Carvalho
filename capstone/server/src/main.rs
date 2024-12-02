@@ -6,7 +6,7 @@ mod db;
 use axum::{routing::get, routing::post, Router};
 use controllers::{
     farmer_controller::{create_farmer, delete_farmer, get_farmer, update_farmer},
-    product_controller::{create_product, delete_product, get_product, update_product}
+    product_controller::{create_product, delete_product, get_product, update_product}, transaction_controller::{create_transaction, delete_transaction, get_transaction, update_transaction}
 };
 use dotenv::dotenv;
 use std::env;
@@ -37,6 +37,10 @@ async fn main() -> anyhow::Result<()> {
         // Product Routes
         .route("/product", post(create_product))
         .route("/product/:id", get(get_product).put(update_product).delete(delete_product))
+
+        // Transaction Routes
+        .route("/transaction", post(create_transaction))
+        .route("/transaction/:id", get(get_transaction).put(update_transaction).delete(delete_transaction))
         
         // Health Check Route
         .route("/health", get(|| async { "Healthy!" }))

@@ -44,7 +44,7 @@ CREATE TABLE transaction_history (
     hash TEXT NOT NULL UNIQUE,
     sender_wallet TEXT NOT NULL,
     receiver_wallet TEXT NOT NULL,
-    amount DECIMAL(18, 8) NOT NULL,
+    amount FLOAT NOT NULL,
     product_address UUID REFERENCES products(id),
     type TEXT NOT NULL CHECK (type IN ('deliver', 'purchase', 'refund')),
     created_at TIMESTAMP DEFAULT NOW()
