@@ -16,11 +16,17 @@ import {
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
 
+import fs from "fs";
 import { Solana } from "../target/types/solana";
 
 const METADATA_PROGRAM_ID = new PublicKey(
   "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
 );
+
+const loadKeypair = (filePath: string): Keypair => {
+  const secretKey = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+  return Keypair.fromSecretKey(Uint8Array.from(secretKey));
+};
 
 describe("FarmLink", () => {
   const provider = anchor.AnchorProvider.env();
@@ -40,23 +46,58 @@ describe("FarmLink", () => {
   };
 
   const log = async (signature: string): Promise<string> => {
-    console.log(
-      `Your transaction signature: https://explorer.solana.com/transaction/${signature}?cluster=custom&customUrl=${connection.rpcEndpoint}`
-    );
+    if (connection.rpcEndpoint === "https://api.devnet.solana.com") {
+      console.log(
+        `Your transaction signature: https://explorer.solana.com/transaction/${signature}?cluster=devnet`
+      );
+    } else {
+      console.log(
+        `Your transaction signature: https://explorer.solana.com/transaction/${signature}?cluster=custom&customUrl=${connection.rpcEndpoint}`
+      );
+    }
+
     return signature;
+  };
+
+  const transferMinimumRent = async (account: PublicKey) => {
+    const balance = await connection.getBalance(account);
+    const minRent = await connection.getMinimumBalanceForRentExemption(165);
+    const buffer = 1000;
+
+    if (balance < minRent + buffer) {
+      const lamportsToTransfer = minRent + buffer - balance;
+
+      await provider.sendAndConfirm(
+        new anchor.web3.Transaction().add(
+          anchor.web3.SystemProgram.transfer({
+            fromPubkey: payer.publicKey,
+            toPubkey: account,
+            lamports: lamportsToTransfer,
+          })
+        ),
+        [payer]
+      );
+    }
   };
 
   const farmName = "smallfarm";
   const metadata = {
-    name: 'Fresh Strawberries',
-    symbol: 'STRW',
-    uri: 'https://red-chilly-carp-862.mypinata.cloud/ipfs/QmbJWAESqCsf4RFCqEY7jecCashj8usXiyDNfKtZCwwzGb',
+    name: "Fresh Strawberries",
+    symbol: "STRW",
+    uri: "https://red-chilly-carp-862.mypinata.cloud/ipfs/QmbJWAESqCsf4RFCqEY7jecCashj8usXiyDNfKtZCwwzGb",
   };
 
   // Accounts
-  let farmer = Keypair.generate();
-  let consumer = Keypair.generate();
-  let payer = Keypair.generate();
+
+  /////////////// Commented because in Devnet the airdrop limit can be reached(Uncomment if testing in localnet and comment the 3 loadKeyPairs accounts in lines 101, 102 and 103) ///////////////
+  // let farmer = Keypair.generate();
+  // let consumer = Keypair.generate();
+  // let payer = Keypair.generate();
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  const farmer = loadKeypair("./keypair-farmer.json");
+  const consumer = loadKeypair("./keypair-consumer.json");
+  const payer = loadKeypair("./keypair-payer.json");
 
   let farmerMint: PublicKey;
   let farmerAta: any;
@@ -79,36 +120,29 @@ describe("FarmLink", () => {
 
   it("setup", async () => {
     try {
-      await connection.confirmTransaction(
-        await connection.requestAirdrop(
-          farmer.publicKey,
-          10 * LAMPORTS_PER_SOL
-        ),
-        "confirmed"
-      );
-      await connection.confirmTransaction(
-        await connection.requestAirdrop(
-          consumer.publicKey,
-          100 * LAMPORTS_PER_SOL
-        ),
-        "confirmed"
-      );
-      await connection.confirmTransaction(
-        await connection.requestAirdrop(
-          payer.publicKey,
-          100_000 * LAMPORTS_PER_SOL
-        ),
-        "confirmed"
-      );1
-
-      //   console.log(
-      //     "Balances:\nfarmer: ",
-      //     (await connection.getBalance(farmer.publicKey)) / LAMPORTS_PER_SOL,
-      //     " \nconsumer: ",
-      //     (await connection.getBalance(consumer.publicKey)) / LAMPORTS_PER_SOL,
-      //     "\npayer: ",
-      //     (await connection.getBalance(payer.publicKey)) / LAMPORTS_PER_SOL
-      //   );
+      /////////////// Commented because in Devnet the airdrop limit can be reached(Uncomment if testing in localnet) ///////////////
+      // await connection.confirmTransaction(
+      //   await connection.requestAirdrop(
+      //     farmer.publicKey,
+      //     0.1 * LAMPORTS_PER_SOL
+      //   ),
+      //   "confirmed"
+      // );
+      // await connection.confirmTransaction(
+      //   await connection.requestAirdrop(
+      //     consumer.publicKey,
+      //     0.1 * LAMPORTS_PER_SOL
+      //   ),
+      //   "confirmed"
+      // );
+      // await connection.confirmTransaction(
+      //   await connection.requestAirdrop(
+      //     payer.publicKey,
+      //     0.2 * LAMPORTS_PER_SOL
+      //   ),
+      //   "confirmed"
+      // );
+      //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       farmerMint = await createMint(
         connection,
@@ -117,7 +151,6 @@ describe("FarmLink", () => {
         null,
         6
       );
-      //   console.log("farmerMint: ", farmerMint);
 
       farmerAta = await getOrCreateAssociatedTokenAccount(
         connection,
@@ -125,7 +158,6 @@ describe("FarmLink", () => {
         farmerMint,
         farmer.publicKey
       );
-      //   console.log("farmerAta: ", farmerAta);
 
       await mintTo(
         connection,
@@ -136,10 +168,6 @@ describe("FarmLink", () => {
         1000000000,
         [farmer]
       );
-      //   console.log(
-      //     "mint 1000000000 to farmerAta\tbalance: ",
-      //     await connection.getTokenAccountBalance(farmerAta.address)
-      //   );
 
       consumerMint = await createMint(
         connection,
@@ -148,7 +176,6 @@ describe("FarmLink", () => {
         null,
         6
       );
-      //   console.log("consumerMint: ", consumerMint);
 
       consumerAta = await getOrCreateAssociatedTokenAccount(
         connection,
@@ -156,7 +183,6 @@ describe("FarmLink", () => {
         farmerMint,
         consumer.publicKey
       );
-      //   console.log("consumerAta: ", consumerAta);
 
       await mintTo(
         connection,
@@ -167,22 +193,17 @@ describe("FarmLink", () => {
         1000000000,
         [farmer]
       );
-      //   console.log(
-      //     "mint 1000000000 to consumerAta\tbalance: ",
-      //     await connection.getTokenAccountBalance(consumerAta.address)
-      //   );
 
       farmLink = PublicKey.findProgramAddressSync(
         [Buffer.from("farmlink", "utf-8"), Buffer.from(farmName, "utf-8")],
         program.programId
       )[0];
-      //   console.log("farmLink: ", farmLink);
+      console.log("farmLink: ", farmLink);
 
       product = PublicKey.findProgramAddressSync(
         [farmLink.toBuffer(), farmerMint.toBuffer()],
         program.programId
       )[0];
-      //   console.log("product: ", product);
 
       productMint = await createMint(
         connection,
@@ -191,13 +212,11 @@ describe("FarmLink", () => {
         null,
         6
       );
-      //   console.log("productMint: ", productMint);
 
       treasury = PublicKey.findProgramAddressSync(
         [Buffer.from("treasury", "utf-8"), farmLink.toBuffer()],
         program.programId
       )[0];
-      //   console.log("treasury: ", treasury);
 
       rewardsMint = PublicKey.findProgramAddressSync(
         [Buffer.from("rewards", "utf-8"), farmLink.toBuffer()],
@@ -244,13 +263,6 @@ describe("FarmLink", () => {
         rent: anchor.web3.SYSVAR_RENT_PUBKEY,
         metadata_program_id: METADATA_PROGRAM_ID,
       };
-
-      //   const consumerBalance = await connection.getBalance(consumer.publicKey);
-      //   console.log(
-      //     "Consumer balance before purchase:",
-      //     consumerBalance / LAMPORTS_PER_SOL,
-      //     "SOL"
-      //   );
     } catch (error) {
       console.log(error);
       throw error;
@@ -269,19 +281,32 @@ describe("FarmLink", () => {
     };
 
     try {
-      await program.methods
-        .initialize(farmName, 1)
-        .accounts({ ...accounts })
-        .signers([farmer])
-        .rpc()
-        .then(confirm)
-        .then(log);
+      // Check if the farmlink PDA is already initialized
+      const farmlinkAccountInfo = await connection.getAccountInfo(
+        accounts.farmlink
+      );
+
+      if (farmlinkAccountInfo) {
+        console.log(
+          "Farmlink PDA already initialized:",
+          accounts.farmlink.toBase58()
+        );
+      } else {
+        console.log("Initializing Farmlink PDA...");
+        await program.methods
+          .initialize(farmName, 1)
+          .accounts(accounts)
+          .signers([farmer])
+          .rpc()
+          .then(confirm)
+          .then(log);
+      }
     } catch (error) {
       if (error instanceof SendTransactionError) {
         const logs = await error.getLogs(provider.connection);
         console.log("Transaction Logs:", logs);
       }
-      console.log(error);
+      console.error("Error initializing farmlink:", error);
       throw error;
     }
   });
@@ -304,7 +329,12 @@ describe("FarmLink", () => {
     };
 
     await program.methods
-      .createProduct(new BN(1 * LAMPORTS_PER_SOL), metadata.name, metadata.symbol, metadata.uri)
+      .createProduct(
+        new BN(0.01 * LAMPORTS_PER_SOL),
+        metadata.name,
+        metadata.symbol,
+        metadata.uri
+      )
       .accounts({ ...accounts })
       .signers([farmer])
       .rpc()
@@ -337,11 +367,6 @@ describe("FarmLink", () => {
       tokenProgram: accountsPublicKeys["token_program"],
     };
 
-    // Get minimum rent for token accounts
-    const rentExemptAmount = await connection.getMinimumBalanceForRentExemption(
-      165
-    );
-
     // Fund all relevant accounts that need rent
     const accountsToFund = [
       accounts.consumer,
@@ -352,16 +377,7 @@ describe("FarmLink", () => {
     ];
 
     for (const account of accountsToFund) {
-      const balance = await connection.getBalance(account);
-      if (balance < rentExemptAmount + LAMPORTS_PER_SOL) {
-        await connection.confirmTransaction(
-          await connection.requestAirdrop(
-            account,
-            rentExemptAmount + 2 * LAMPORTS_PER_SOL
-          ),
-          "confirmed"
-        );
-      }
+      await transferMinimumRent(account);
     }
 
     try {
