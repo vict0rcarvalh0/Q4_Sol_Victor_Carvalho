@@ -1,5 +1,6 @@
 import './globals.css';
 import AppWalletProvider from "../components/AppWalletProvider";
+import { Toaster } from '@/components/ui/toaster'
 
 export const metadata = {
   title: 'FarmLink',
@@ -8,14 +9,17 @@ export const metadata = {
  
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en">
       <body>
-        <AppWalletProvider>{children}</AppWalletProvider>
+        <AppWalletProvider>
+          {children}
+          <Toaster />
+        </AppWalletProvider>
       </body>
     </html>
-  );
+  )
 }

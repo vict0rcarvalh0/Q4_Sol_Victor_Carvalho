@@ -44,7 +44,6 @@ export function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
     }
 
     try {
-      // Call the backend service
       await createFarmer({
         email,
         wallet_address: publicKey.toBase58(),
@@ -55,7 +54,7 @@ export function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
         description: "Your email and wallet have been registered.",
       })
 
-      onClose() // Close the modal on success
+      onClose()
     } catch (error) {
       toast({
         title: "Sign Up Failed",
