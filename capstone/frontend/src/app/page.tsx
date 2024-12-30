@@ -10,16 +10,30 @@ import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { SignUpModal } from '@/components/SignUpModal'
 import { Toaster } from '@/components/ui/toaster'
+import { useRouter } from 'next/navigation'
 
 export default function Home() {
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false)
   const { connected } = useWallet()
+  const router = useRouter()
 
   useEffect(() => {
     if (connected) {
       setIsSignUpModalOpen(false)
     }
   }, [connected])
+
+  const handleJoinNow = () => {
+    if (connected) {
+      router.push('/marketplace')
+    } else {
+      setIsSignUpModalOpen(true)
+    }
+  }
+
+  const handleLearnServices = () => {
+    router.push('/services')
+  }
 
   return (
     <div className="bg-background min-h-screen">
@@ -59,8 +73,18 @@ export default function Home() {
             Driving Agricultural Evolution<br />with Innovation
           </h1>
           <div className="flex flex-col sm:flex-row gap-4">
-            <button className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#99FF00] duration-300 shadow-md bg-[#B8FF4F] px-6 py-2 rounded-full text-black font-bold">Join Now</button>
-            <button className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#EFEFEF] shadow-md bg-white border border-white px-6 py-2 rounded-full text-black font-bold">Learn Services</button>
+            <button 
+              onClick={handleJoinNow}
+              className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#99FF00] duration-300 shadow-md bg-[#B8FF4F] px-6 py-2 rounded-full text-black font-bold"
+            >
+              Join Now
+            </button>
+            <button
+              onClick={handleLearnServices}
+              className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#EFEFEF] shadow-md bg-white border border-white px-6 py-2 rounded-full text-black font-bold"
+            >
+              Learn Services
+            </button>
           </div>
         </div>
       </div>
@@ -83,7 +107,12 @@ export default function Home() {
             <li>Consumers can buy directly from farmers, without middlemen, for personal or enterprise needs.</li>
             <li>Investors can easily trade the tokenized assets for hedging or other purposes.</li>
           </ul>
-          <button className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#99FF00] duration-300 shadow-md bg-[#B8FF4F] px-6 py-2 rounded-full text-black font-bold">Join Now</button>
+          <button
+            onClick={handleJoinNow}
+            className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#99FF00] duration-300 shadow-md bg-[#B8FF4F] px-6 py-2 rounded-full text-black font-bold"
+          >
+            Join Now
+          </button>
         </div>
 
         {/* Services Section */}

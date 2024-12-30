@@ -7,7 +7,6 @@ use axum::{
 };
 use sqlx::{Pool, Postgres};
 use std::sync::Arc;
-use uuid::Uuid;
 
 pub async fn create_transaction(
     State(pool): State<Arc<Pool<Postgres>>>,
@@ -21,7 +20,7 @@ pub async fn create_transaction(
 
 pub async fn get_transaction(
     State(pool): State<Arc<Pool<Postgres>>>,
-    Path(id): Path<Uuid>,
+    Path(id): Path<i32>,
 ) -> impl IntoResponse {
     match transaction_service::get_transaction(&pool, id).await {
         Ok(transaction) => Json(transaction).into_response(),
@@ -31,7 +30,7 @@ pub async fn get_transaction(
 
 pub async fn update_transaction(
     State(pool): State<Arc<Pool<Postgres>>>,
-    Path(id): Path<Uuid>,
+    Path(id): Path<i32>,
     Json(payload): Json<CreateTransactionHistory>,
 ) -> impl IntoResponse {
     match transaction_service::update_transaction(&pool, id, payload).await {
@@ -42,7 +41,7 @@ pub async fn update_transaction(
 
 pub async fn delete_transaction(
     State(pool): State<Arc<Pool<Postgres>>>,
-    Path(id): Path<Uuid>,
+    Path(id): Path<i32>,
 ) -> impl IntoResponse {
     match transaction_service::delete_transaction(&pool, id).await {
         Ok(_) => StatusCode::OK.into_response(),

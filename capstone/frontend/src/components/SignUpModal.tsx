@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { toast } from '@/hooks/use-toast'
+import { createFarmer } from '../services/farmer' // Updated path
 
 interface SignUpModalProps {
   isOpen: boolean
@@ -23,24 +24,45 @@ export function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
     if (connected && isConnecting) {
       setIsConnecting(false)
       handleSignUp()
-      onClose()
     }
-  }, [connected, isConnecting, onClose])
+  }, [connected, isConnecting])
 
   const handleConnectWallet = () => {
     setIsConnecting(true)
-    onClose() 
-    setTimeout(() => setVisible(true), 50) 
+    onClose()
+    setTimeout(() => setVisible(true), 50)
   }
 
   const handleSignUp = async () => {
-    if (publicKey) {
-      console.log('Email:', email)
-      console.log('Wallet address:', publicKey.toBase58())
+    if (!email || !publicKey) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid email and connect your wallet.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      // Call the backend service
+      await createFarmer({
+        email,
+        wallet_address: publicKey.toBase58(),
+      })
+
       toast({
         title: "Sign Up Successful",
         description: "Your email and wallet have been registered.",
       })
+
+      onClose() // Close the modal on success
+    } catch (error) {
+      toast({
+        title: "Sign Up Failed",
+        description: error instanceof Error ? error.message : "An unexpected error occurred.",
+        variant: "destructive",
+      })
+      console.error('SignUp Error:', error)
     }
   }
 
@@ -73,4 +95,3 @@ export function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
     </Dialog>
   )
 }
-

@@ -4,7 +4,6 @@ use axum::{extract::State, http::StatusCode, Json, response::IntoResponse};
 use sqlx::Pool;
 use sqlx::Postgres;
 use std::sync::Arc;
-use uuid::Uuid;
 
 pub async fn create_product(
     State(pool): State<Arc<Pool<Postgres>>>,
@@ -18,7 +17,7 @@ pub async fn create_product(
 
 pub async fn get_product(
     State(pool): State<Arc<Pool<Postgres>>>,
-    axum::extract::Path(id): axum::extract::Path<Uuid>,
+    axum::extract::Path(id): axum::extract::Path<i32>,
 ) -> impl IntoResponse {
     match product_service::get_product(&pool, id).await {
         Ok(product) => Json(product).into_response(),
@@ -28,7 +27,7 @@ pub async fn get_product(
 
 pub async fn update_product(
     State(pool): State<Arc<Pool<Postgres>>>,
-    axum::extract::Path(id): axum::extract::Path<Uuid>,
+    axum::extract::Path(id): axum::extract::Path<i32>,
     Json(payload): Json<CreateProduct>,
 ) -> impl IntoResponse {
     match product_service::update_product(&pool, id, payload).await {
@@ -39,7 +38,7 @@ pub async fn update_product(
 
 pub async fn delete_product(
     State(pool): State<Arc<Pool<Postgres>>>,
-    axum::extract::Path(id): axum::extract::Path<Uuid>,
+    axum::extract::Path(id): axum::extract::Path<i32>,
 ) -> impl IntoResponse {
     match product_service::delete_product(&pool, id).await {
         Ok(_) => StatusCode::OK.into_response(),

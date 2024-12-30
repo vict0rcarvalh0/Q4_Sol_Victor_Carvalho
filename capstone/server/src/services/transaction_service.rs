@@ -1,5 +1,4 @@
 use sqlx::{query_as, query};
-use uuid::Uuid;
 use crate::{db::DbPool, models::transaction::{CreateTransactionHistory, TransactionHistory}};
 
 pub async fn create_transaction(
@@ -23,7 +22,7 @@ pub async fn create_transaction(
     Ok(transaction)
 }
 
-pub async fn get_transaction(pool: &DbPool, id: Uuid) -> Result<TransactionHistory, sqlx::Error> {
+pub async fn get_transaction(pool: &DbPool, id: i32) -> Result<TransactionHistory, sqlx::Error> {
     let transaction = query_as::<_, TransactionHistory>(
         "SELECT * FROM transaction_history WHERE id = $1"
     )
@@ -36,7 +35,7 @@ pub async fn get_transaction(pool: &DbPool, id: Uuid) -> Result<TransactionHisto
 
 pub async fn update_transaction(
     pool: &DbPool,
-    id: Uuid,
+    id: i32,
     data: CreateTransactionHistory,
 ) -> Result<TransactionHistory, sqlx::Error> {
     let transaction = query_as::<_, TransactionHistory>(
@@ -58,7 +57,7 @@ pub async fn update_transaction(
     Ok(transaction)
 }
 
-pub async fn delete_transaction(pool: &DbPool, id: Uuid) -> Result<(), sqlx::Error> {
+pub async fn delete_transaction(pool: &DbPool, id: i32) -> Result<(), sqlx::Error> {
     query("DELETE FROM transaction_history WHERE id = $1")
         .bind(id)
         .execute(pool)

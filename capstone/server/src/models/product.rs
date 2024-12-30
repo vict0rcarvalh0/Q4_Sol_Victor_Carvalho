@@ -1,11 +1,10 @@
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
-use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, FromRow)]
 pub struct Product {
-    pub id: Uuid,
+    pub id: i32,
     pub name: String,
     pub description: String,
     pub category: String,
@@ -14,7 +13,7 @@ pub struct Product {
     pub price_per_unit: f64,
     pub available_quantity: f64,
     pub status: String,
-    pub farmer_id: Uuid,
+    pub farmer_id: i32,
     pub created_at: NaiveDateTime,
 }
 
@@ -28,5 +27,5 @@ pub struct CreateProduct {
     pub price_per_unit: f64,
     pub available_quantity: f64,
     pub status: String,
-    pub farmer_id: Uuid,
+    pub farmer_id: i32,
 }

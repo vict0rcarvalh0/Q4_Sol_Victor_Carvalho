@@ -46,11 +46,11 @@ async fn main() -> anyhow::Result<()> {
         .route("/health", get(|| async { "Healthy!" }))
         .with_state(shared_pool);
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:5000")
         .await
         .unwrap();
 
-    println!("Listening at http://0.0.0.0:3000/ 🦀");
+    println!("Listening at http://0.0.0.0:5000/ 🦀");
 
     axum::serve(listener, app).await.unwrap();
 

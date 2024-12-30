@@ -1,18 +1,16 @@
 use crate::db::DbPool;
 use crate::models::product::{CreateProduct, Product};
-use sqlx::{query_as, query, types::Uuid};
+use sqlx::{query_as, query};
 
 // Create a new product
 pub async fn create_product(pool: &DbPool, data: CreateProduct) -> Result<Product, sqlx::Error> {
     let created_at = chrono::Local::now().naive_local();
-    let id = Uuid::new_v4();
     
     let product = query_as::<_, Product>(
-        "INSERT INTO products (id, name, description, category, unit, total_amount, price_per_unit, available_quantity, status, farmer_id, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        "INSERT INTO products (name, description, category, unit, total_amount, price_per_unit, available_quantity, status, farmer_id, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         RETURNING id, name, description, category, unit, total_amount, price_per_unit, available_quantity, status, farmer_id, created_at"
     )
-    .bind(id)
     .bind(&data.name)
     .bind(&data.description)
     .bind(&data.category)
@@ -30,7 +28,7 @@ pub async fn create_product(pool: &DbPool, data: CreateProduct) -> Result<Produc
 }
 
 // Get a product by ID
-pub async fn get_product(pool: &DbPool, id: Uuid) -> Result<Product, sqlx::Error> {
+pub async fn get_product(pool: &DbPool, id: i32) -> Result<Product, sqlx::Error> {
     let product = query_as::<_, Product>(
         "SELECT id, name, description, category, unit, total_amount, price_per_unit, available_quantity, status, farmer_id, created_at 
         FROM products WHERE id = $1"
@@ -43,7 +41,7 @@ pub async fn get_product(pool: &DbPool, id: Uuid) -> Result<Product, sqlx::Error
 }
 
 // Update a product by ID
-pub async fn update_product(pool: &DbPool, id: Uuid, data: CreateProduct) -> Result<Product, sqlx::Error> {
+pub async fn update_product(pool: &DbPool, id: i32, data: CreateProduct) -> Result<Product, sqlx::Error> {
     let product = query_as::<_, Product>(
         "UPDATE products 
         SET name = $2, description = $3, category = $4, unit = $5, total_amount = $6, price_per_unit = $7, available_quantity = $8, status = $9
@@ -66,7 +64,7 @@ pub async fn update_product(pool: &DbPool, id: Uuid, data: CreateProduct) -> Res
 }
 
 // Delete a product by ID
-pub async fn delete_product(pool: &DbPool, id: Uuid) -> Result<(), sqlx::Error> {
+pub async fn delete_product(pool: &DbPool, id: i32) -> Result<(), sqlx::Error> {
     query("DELETE FROM products WHERE id = $1")
         .bind(id)
         .execute(pool)
