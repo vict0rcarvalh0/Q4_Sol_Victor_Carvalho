@@ -4,15 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { ShoppingCart, TrendingUp, ArrowRight, Shield, Recycle, Coins, Users, BarChart3 } from 'lucide-react';
+import { ServiceCard } from "@/components/ServiceCard";
+import { ShoppingCart, TrendingUp, ArrowRight, Shield, Recycle } from 'lucide-react';
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { SignUpModal } from "@/components/SignUpModal";
@@ -75,33 +68,36 @@ export default function Home() {
     },
   ];
 
-  const benefits = [
-    {
-      title: "Tokenize Crops",
-      description:
-        "Farmers can easily tokenize and advertise their crops for sale, opening up new market opportunities.",
-      icon: Coins,
-    },
-    {
-      title: "Direct Purchases",
-      description:
-        "Consumers can buy directly from farmers, eliminating middlemen for personal or enterprise needs.",
-      icon: Users,
-    },
-    {
-      title: "Asset Trading",
-      description:
-        "Investors can easily trade tokenized assets for hedging or other financial purposes.",
-      icon: BarChart3,
-    },
-  ];
+  // const benefits = [
+  //   {
+  //     title: "Tokenize Crops",
+  //     description:
+  //       "Farmers can easily tokenize and advertise their crops for sale, opening up new market opportunities.",
+  //     icon: Coins,
+  //   },
+  //   {
+  //     title: "Direct Purchases",
+  //     description:
+  //       "Consumers can buy directly from farmers, eliminating middlemen for personal or enterprise needs.",
+  //     icon: Users,
+  //   },
+  //   {
+  //     title: "Asset Trading",
+  //     description:
+  //       "Investors can easily trade tokenized assets for hedging or other financial purposes.",
+  //     icon: BarChart3,
+  //   },
+  // ];
 
   return (
     <div className="bg-background min-h-screen">
       {/* Hero Section */}
-      <div
+      <motion.div
         className="relative bg-cover bg-center h-[60vh]"
         style={{ backgroundImage: "url('/agrofieldcut.png')" }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
       >
         {/* Header */}
         <header className="relative z-20 flex items-center justify-between p-4">
@@ -155,32 +151,53 @@ export default function Home() {
           </div>
         </header>
 
-        <div className="relative z-10 container mx-auto flex flex-col items-center justify-center h-full text-center text-white space-y-6">
+        <motion.div
+          className="relative z-10 container mx-auto flex flex-col items-center justify-center h-full text-center text-white space-y-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+        >
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight">
             Driving Agricultural Evolution
             <br />
             with Innovation
           </h1>
           <div className="flex flex-col sm:flex-row gap-4">
-            <button
+            <motion.button
               onClick={handleJoinNow}
               className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#99FF00] duration-300 shadow-md bg-[#B8FF4F] px-6 py-2 rounded-full text-black font-bold"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               Join Now
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               onClick={handleLearnServices}
               className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#EFEFEF] shadow-md bg-white border border-white px-6 py-2 rounded-full text-black font-bold"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               Learn Services
-            </button>
+            </motion.button>
           </div>
-        </div>
-      </div>
-      <PoweredByMarquee />
+        </motion.div>
+      </motion.div>
+      <motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.5, delay: 0.7 }}
+>
+  <PoweredByMarquee />
+</motion.div>
       <div className="container mx-auto px-4 py-16 space-y-16 pb-32">
         {/* Mission Statement */}
-        <div className="text-center space-y-2">
+        <motion.div
+          className="text-center space-y-2"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true, amount: 0.8 }}
+        >
           <p className="text-2xl text-muted-foreground">
             We provide a variety of services that are flexible and tailored to
             your needs.
@@ -190,9 +207,14 @@ export default function Home() {
             <br />
             when it comes to agricultural commodities.
           </p>
-        </div>
+        </motion.div>
       </div>
-      <div className="bg-black text-white py-20 w-full">
+      <motion.div
+        className="bg-black text-white py-20 w-full"
+        initial={{ backgroundColor: "#000000" }}
+        whileInView={{ backgroundColor: "#0A0A0A" }}
+        transition={{ duration: 1 }}
+      >
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
@@ -225,91 +247,25 @@ export default function Home() {
               <h3 className="text-2xl mr-20">
                 Are you ready to be part of this?
               </h3>
-              <Button
+              <motion.button
                 onClick={handleJoinNow}
-                className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#99FF00] duration-300 shadow-md bg-[#B8FF4F] px-5 py-3 mr-44 rounded-full text-black font-bold text-lg"
+                className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#99FF00] duration-300 shadow-md bg-[#B8FF4F] px-5 py-3 mr-48 rounded-full text-black font-bold text-m"
+                whileHover={{ scale: 1.05, backgroundColor: "#99FF00" }}
+                whileTap={{ scale: 0.95 }}
               >
-                Join Now <ArrowRight className="ml-1 h-3 w-3" />
-              </Button>
+                Join Now
+              </motion.button>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
       <div className="container mx-auto px-4 py-16 space-y-16">
-        {/* Benefits Section */}
-        <div className="space-y-10 pt-12">
-          <h2 className="text-3xl font-semibold text-center">
-            Benefits of Using FarmLink
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {benefits.map((benefit, index) => (
-              <motion.div
-                key={benefit.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <Card className="h-full bg-primary/5 border-none transition-all duration-300 ease-in-out hover:bg-primary/10">
-                  <CardHeader>
-                    <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mb-4">
-                      <benefit.icon className="h-6 w-6 text-primary" />
-                    </div>
-                    <CardTitle className="text-xl">{benefit.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription className="text-foreground/80">
-                      {benefit.description}
-                    </CardDescription>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-          <div className="flex justify-center">
-            <Button
-              onClick={handleJoinNow}
-              className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#99FF00] duration-300 shadow-md bg-[#B8FF4F] px-8 py-3 rounded-full text-black font-bold text-lg"
-            >
-              Join Now
-            </Button>
-          </div>
-        </div>
-
         {/* Services Section */}
         <div className="space-y-10 pt-12">
           <h2 className="text-3xl font-semibold text-center">Our Services</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {services.map((service, index) => (
-              <motion.div
-                key={service.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <Card className="h-full transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_rgba(184,255,79,0.5)] hover:ring-1 hover:ring-[#B8FF4F] hover:ring-offset-0 relative after:absolute after:inset-0 after:rounded-lg after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-300 after:shadow-[0_0_30px_4px_rgba(184,255,79,0.3)] after:pointer-events-none">
-                  <CardHeader>
-                    <div className="w-12 h-12 rounded-full bg-[#B8FF4F] flex items-center justify-center mb-4">
-                      <service.icon className="h-6 w-6 text-black" />
-                    </div>
-                    <CardTitle className="text-lg">{service.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription>{service.description}</CardDescription>
-                  </CardContent>
-                  <CardFooter>
-                    {service.comingSoon ? (
-                      <span className="text-sm text-muted-foreground">
-                        Coming Soon
-                      </span>
-                    ) : (
-                      <Button variant="ghost" className="w-full group">
-                        Learn More
-                        <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                      </Button>
-                    )}
-                  </CardFooter>
-                </Card>
-              </motion.div>
+              <ServiceCard key={service.title} service={service} index={index} />
             ))}
           </div>
         </div>
