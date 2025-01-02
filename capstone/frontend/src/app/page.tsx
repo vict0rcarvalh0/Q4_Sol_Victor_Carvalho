@@ -1,35 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { ServiceCard } from "@/components/ServiceCard";
-import { ShoppingCart, TrendingUp, ArrowRight, Shield, Recycle } from 'lucide-react';
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { ShoppingCart, TrendingUp, Shield, Recycle } from 'lucide-react';
 import { useWallet } from "@solana/wallet-adapter-react";
-import { SignUpModal } from "@/components/SignUpModal";
 import { Toaster } from "@/components/ui/toaster";
 import { motion } from "framer-motion";
 import { PoweredByMarquee } from "@/components/PoweredByMarquee";
 import Image from "next/image";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 
 export default function Home() {
-  const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const { connected } = useWallet();
   const router = useRouter();
-
-  useEffect(() => {
-    if (connected) {
-      setIsSignUpModalOpen(false);
-    }
-  }, [connected]);
 
   const handleJoinNow = () => {
     if (connected) {
       router.push("/marketplace");
     } else {
-      setIsSignUpModalOpen(true);
+      router.push("/signup");
     }
   };
 
@@ -68,30 +58,9 @@ export default function Home() {
     },
   ];
 
-  // const benefits = [
-  //   {
-  //     title: "Tokenize Crops",
-  //     description:
-  //       "Farmers can easily tokenize and advertise their crops for sale, opening up new market opportunities.",
-  //     icon: Coins,
-  //   },
-  //   {
-  //     title: "Direct Purchases",
-  //     description:
-  //       "Consumers can buy directly from farmers, eliminating middlemen for personal or enterprise needs.",
-  //     icon: Users,
-  //   },
-  //   {
-  //     title: "Asset Trading",
-  //     description:
-  //       "Investors can easily trade tokenized assets for hedging or other financial purposes.",
-  //     icon: BarChart3,
-  //   },
-  // ];
-
   return (
     <div className="bg-background min-h-screen">
-      {/* Hero Section */}
+      <Navbar />
       <motion.div
         className="relative bg-cover bg-center h-[60vh]"
         style={{ backgroundImage: "url('/agrofieldcut.png')" }}
@@ -99,58 +68,6 @@ export default function Home() {
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
       >
-        {/* Header */}
-        <header className="relative z-20 flex items-center justify-between p-4">
-          <div className="flex items-center space-x-6">
-            <Link href="/" className="text-white text-2xl font-bold">
-              FarmLink
-            </Link>
-            <Image
-              src="/farmlink.png"
-              alt="Farmlink Logo"
-              width={25}
-              height={25}
-              className="inline-block"
-            />
-            <nav className="flex items-center space-x-4">
-              <Link
-                href="/services"
-                className="ml-16 mr-4 text-white font-bold hover:text-primary-foreground transition-colors"
-              >
-                Services
-              </Link>
-              {connected && (
-                <>
-                  <Link
-                    href="/marketplace"
-                    className="mr-4 text-white font-bold hover:text-primary-foreground transition-colors"
-                  >
-                    Marketplace
-                  </Link>
-                  <Link
-                    href="/farmer"
-                    className="mr-4 text-white font-bold hover:text-primary-foreground transition-colors"
-                  >
-                    Farmer
-                  </Link>
-                </>
-              )}
-            </nav>
-          </div>
-          <div className="flex items-center space-x-4">
-            <WalletMultiButton style={{}} />
-            {!connected && (
-              <Button
-                variant="outline"
-                className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-[#EFEFEF] shadow-md bg-white border border-white px-6 py-2 rounded-full text-black font-bold"
-                onClick={() => setIsSignUpModalOpen(true)}
-              >
-                Sign Up
-              </Button>
-            )}
-          </div>
-        </header>
-
         <motion.div
           className="relative z-10 container mx-auto flex flex-col items-center justify-center h-full text-center text-white space-y-6"
           initial={{ opacity: 0, y: 20 }}
@@ -183,12 +100,12 @@ export default function Home() {
         </motion.div>
       </motion.div>
       <motion.div
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.5, delay: 0.7 }}
->
-  <PoweredByMarquee />
-</motion.div>
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.7 }}
+      >
+        <PoweredByMarquee />
+      </motion.div>
       <div className="container mx-auto px-4 py-16 space-y-16 pb-32">
         {/* Mission Statement */}
         <motion.div
@@ -265,16 +182,17 @@ export default function Home() {
           <h2 className="text-3xl font-semibold text-center">Our Services</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {services.map((service, index) => (
-              <ServiceCard key={service.title} service={service} index={index} />
+              <ServiceCard
+                key={service.title}
+                service={service}
+                index={index}
+              />
             ))}
           </div>
         </div>
       </div>
 
-      <SignUpModal
-        isOpen={isSignUpModalOpen}
-        onClose={() => setIsSignUpModalOpen(false)}
-      />
+      <Footer />
       <Toaster />
     </div>
   );
