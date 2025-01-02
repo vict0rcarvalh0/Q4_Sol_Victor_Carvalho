@@ -16,7 +16,7 @@ export const productService = {
     }
   },
 
-  getProduct: async (productId: unknown) => {
+  getProduct: async (productId: number) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/products/${productId}`);
       return response.data;
@@ -29,7 +29,7 @@ export const productService = {
     }
   },
 
-  updateProduct: async (productId: unknown, productData: unknown) => {
+  updateProduct: async (productId: number, productData: unknown) => {
     try {
       const response = await axios.put(`${API_BASE_URL}/products/${productId}`, productData);
       return response.data;
@@ -42,7 +42,7 @@ export const productService = {
     }
   },
 
-  deleteProduct: async (productId: unknown) => {
+  deleteProduct: async (productId: number) => {
     try {
       await axios.delete(`${API_BASE_URL}/products/${productId}`);
     } catch (error) {

@@ -74,6 +74,10 @@ export default function Home() {
               <Label htmlFor="totalAmount" className="text-lg">Total Amount</Label>
               <Input id="totalAmount" type="number" placeholder="Enter total amount" className="text-lg" />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="pricePerUnit" className="text-lg">Price Per Unit</Label>
+              <Input id="pricePerUnit" type="number" placeholder="Enter price per unit" className="text-lg" />
+            </div>
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
               <Button variant="outline" className="w-full sm:w-auto text-lg" disabled>
                 <Leaf className="w-5 h-5 mr-2" />
@@ -167,4 +171,3 @@ export default function Home() {
     </div>
   )
 }
-
