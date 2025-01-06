@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Leaf, ArrowUpDown, History, X, Truck, Sprout, DollarSign, Package } from 'lucide-react'
 import { DeliverModal } from "@/components/DeliverModal"
 import { Badge } from "@/components/ui/badge"
+import { getStoredUser } from "@/utils/storage";
 
 export default function Home() {
   const [products] = useState([
@@ -53,37 +54,37 @@ export default function Home() {
         <CardContent className="p-6">
           <form className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-lg">Product Name</Label>
-              <Input id="name" placeholder="Enter product name" className="text-lg" />
+              <Label htmlFor="name" className="text-m">Product Name</Label>
+              <Input id="name" placeholder="Enter product name" className="text-m" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-lg">Description</Label>
-              <Textarea id="description" placeholder="Enter description" className="text-lg" />
+              <Label htmlFor="description" className="text-m">Description</Label>
+              <Textarea id="description" placeholder="Enter description" className="text-m" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="category" className="text-lg">Category</Label>
-                <Input id="category" placeholder="Category" className="text-lg" />
+                <Label htmlFor="category" className="text-m">Category</Label>
+                <Input id="category" placeholder="Category" className="text-m" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="unit" className="text-lg">Unit</Label>
-                <Input id="unit" placeholder="Unit" className="text-lg" />
+                <Label htmlFor="unit" className="text-m">Unit</Label>
+                <Input id="unit" placeholder="Unit" className="text-m" />
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="totalAmount" className="text-lg">Total Amount</Label>
-              <Input id="totalAmount" type="number" placeholder="Enter total amount" className="text-lg" />
+              <Label htmlFor="totalAmount" className="text-m">Total Amount</Label>
+              <Input id="totalAmount" type="number" placeholder="Enter total amount" className="text-m" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="pricePerUnit" className="text-lg">Price Per Unit</Label>
-              <Input id="pricePerUnit" type="number" placeholder="Enter price per unit" className="text-lg" />
+              <Label htmlFor="pricePerUnit" className="text-m">Price Per Unit</Label>
+              <Input id="pricePerUnit" type="number" placeholder="Enter price per unit" className="text-m" />
             </div>
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-              <Button variant="outline" className="w-full sm:w-auto text-lg" disabled>
+              <Button variant="outline" className="w-full sm:w-auto text-m" disabled>
                 <Leaf className="w-5 h-5 mr-2" />
                 Get Sustainability Certification
               </Button>
-              <Button type="submit" className="w-full sm:w-auto text-lg transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105 hover:bg-[#99FF00] duration-300 shadow-md bg-[#B8FF4F] px-8 py-3 rounded-md text-black font-bold">
+              <Button type="submit" className="w-full sm:w-auto text-m transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105 hover:bg-[#99FF00] duration-300 shadow-md bg-[#B8FF4F] px-8 py-3 rounded-md text-black font-bold">
                 <Sprout className="w-5 h-5 mr-2" />
                 Submit Product
               </Button>

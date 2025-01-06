@@ -5,7 +5,7 @@ mod db;
 
 use axum::{routing::get, routing::post, Router};
 use controllers::{
-    farmer_controller::{create_farmer, delete_farmer, get_farmer, update_farmer},
+    farmer_controller::{create_farmer, delete_farmer, get_farmer, get_farmer_by_wallet, update_farmer},
     product_controller::{create_product, delete_product, get_product, update_product}, transaction_controller::{create_transaction, delete_transaction, get_transaction, update_transaction}
 };
 use dotenv::dotenv;
@@ -32,6 +32,7 @@ async fn main() -> anyhow::Result<()> {
     let app = Router::new()
         // Farmer Routes
         .route("/farmer", post(create_farmer))
+        .route("/farmer/wallet/:wallet_address", get(get_farmer_by_wallet))
         .route("/farmer/:id", get(get_farmer).delete(delete_farmer).put(update_farmer))
         
         // Product Routes

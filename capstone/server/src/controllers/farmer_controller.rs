@@ -30,6 +30,19 @@ pub async fn get_farmer(
     }
 } 
 
+pub async fn get_farmer_by_wallet(
+    State(pool): State<Arc<Pool<Postgres>>>,
+    Path(wallet_address): Path<String>,
+) -> impl IntoResponse {
+    match farmer_service::get_farmer_by_wallet(&pool, wallet_address.clone()).await {
+        Ok(farmer) => Json(farmer).into_response(),
+        Err(_) => (
+            axum::http::StatusCode::NOT_FOUND,
+            format!("Farmer not found: {}", wallet_address),
+        ).into_response(),
+    }
+}
+
 pub async fn update_farmer(
     State(pool): State<Arc<Pool<Postgres>>>,
     Path(id): Path<i32>,

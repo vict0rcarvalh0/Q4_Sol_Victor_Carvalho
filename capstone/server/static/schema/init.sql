@@ -20,12 +20,13 @@ CREATE TABLE products (
     name TEXT NOT NULL,
     description TEXT,
     category TEXT,
+    fair_location TEXT NOT NULL,
     unit TEXT NOT NULL,
     total_amount FLOAT NOT NULL,
     price_per_unit FLOAT NOT NULL,
     available_quantity FLOAT NOT NULL,
     status TEXT NOT NULL CHECK (status IN ('available', 'sold_out', 'inactive')),
-    farmer_id INT NOT NULL REFERENCES farmers(id) ON DELETE CASCADE, -- Reference to farmers table
+    farmer_id SERIAL NOT NULL REFERENCES farmers(id) ON DELETE CASCADE, -- Reference to farmers table
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 

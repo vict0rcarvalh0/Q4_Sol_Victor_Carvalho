@@ -36,7 +36,7 @@ pub async fn create_farmer(pool: &DbPool, data: CreateFarmer) -> Result<Farmer, 
 
 pub async fn get_farmer(pool: &DbPool, id: i32) -> Result<Farmer, sqlx::Error> {
     let farmer = query_as::<_, Farmer>(
-        "SELECT id, email, password, wallet_address, created_at 
+        "SELECT id, email, wallet_address, created_at 
          FROM farmers 
          WHERE id = $1"
     )
@@ -47,12 +47,25 @@ pub async fn get_farmer(pool: &DbPool, id: i32) -> Result<Farmer, sqlx::Error> {
     Ok(farmer)
 }
 
+pub async fn get_farmer_by_wallet(pool: &DbPool, wallet_address: String) -> Result<Farmer, sqlx::Error> {
+    let farmer = query_as::<_, Farmer>(
+        "SELECT id, email, wallet_address, created_at 
+         FROM farmers 
+         WHERE wallet_address = $1"
+    )
+    .bind(wallet_address)
+    .fetch_one(pool)
+    .await?;
+    
+    Ok(farmer)
+}
+
 pub async fn update_farmer(pool: &DbPool, id: i32, data: CreateFarmer) -> Result<Farmer, sqlx::Error> {
     let farmer = query_as::<_, Farmer>(
         "UPDATE farmers 
-         SET email = $2, password = $3, wallet_address = $4, created_at = now() 
+         SET email = $2, wallet_address = $3, created_at = now() 
          WHERE id = $1 
-         RETURNING id, email, password, wallet_address, created_at"
+         RETURNING id, email, wallet_address, created_at"
     )
     .bind(id)
     .bind(&data.email)

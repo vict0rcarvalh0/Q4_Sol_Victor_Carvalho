@@ -23,7 +23,6 @@ export default function MarketplacePage() {
         lng: -86.8104
       }
     },
-    // Add more product entries here...
   ]
 
   const orders = [
@@ -40,7 +39,6 @@ export default function MarketplacePage() {
         lng: -86.8104
       }
     },
-    // Add more order entries here...
   ]
   
   return (
