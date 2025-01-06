@@ -41,6 +41,19 @@ pub async fn get_product(pool: &DbPool, id: i32) -> Result<Product, sqlx::Error>
     Ok(product)
 }
 
+// Get a product by farmer
+pub async fn get_product_by_farmer(pool: &DbPool, farmer_id: i32) -> Result<Vec<Product>, sqlx::Error> {
+    let products = query_as::<_, Product>(
+        "SELECT id, name, description, category, fair_location, unit, total_amount, price_per_unit, available_quantity, status, farmer_id, created_at 
+        FROM products WHERE farmer_id = $1"
+    )
+    .bind(farmer_id)
+    .fetch_all(pool)
+    .await?;
+
+    Ok(products)
+}
+
 // Update a product by ID
 pub async fn update_product(pool: &DbPool, id: i32, data: CreateProduct) -> Result<Product, sqlx::Error> {
     let product = query_as::<_, Product>(

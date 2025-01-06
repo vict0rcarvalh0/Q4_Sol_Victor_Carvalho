@@ -25,6 +25,16 @@ pub async fn get_product(
     }
 }
 
+pub async fn get_product_by_farmer(
+    State(pool): State<Arc<Pool<Postgres>>>,
+    axum::extract::Path(farmer_id): axum::extract::Path<i32>,
+) -> impl IntoResponse {
+    match product_service::get_product_by_farmer(&pool, farmer_id).await {
+        Ok(products) => Json(products).into_response(),
+        Err(_) => (StatusCode::NOT_FOUND, "No products found for this farmer").into_response(),
+    }
+}
+
 pub async fn update_product(
     State(pool): State<Arc<Pool<Postgres>>>,
     axum::extract::Path(id): axum::extract::Path<i32>,

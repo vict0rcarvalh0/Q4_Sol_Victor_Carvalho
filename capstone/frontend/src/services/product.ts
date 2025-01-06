@@ -1,56 +1,107 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = 'http://localhost:5000';
+const BASE_URL = "http://localhost:5000";
 
-export const productService = {
-  createProduct: async (productData: unknown) => {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/products`, productData);
-      return response.data;
-    } catch (error) {
-      let errorMessage = "Failed to create product";
-      if (error instanceof Error) {
-        errorMessage = error.message;
+export const createProduct = async (productData: unknown) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/product`, productData);
+    return response.data;
+  } catch (error) {
+    let errorMessage = "Failed to create product";
+
+    if (axios.isAxiosError(error)) {
+      const backendMessage = error.response?.data?.message;
+      if (error.response?.status === 400) {
+        errorMessage = "Invalid product data.";
+      } else if (backendMessage) {
+        errorMessage = backendMessage;
       }
-      throw new Error(errorMessage);
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
     }
-  },
 
-  getProduct: async (productId: number) => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/products/${productId}`);
-      return response.data;
-    } catch (error) {
-      let errorMessage = "Failed to fetch product";
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      throw new Error(errorMessage);
-    }
-  },
+    throw new Error(errorMessage);
+  }
+};
 
-  updateProduct: async (productId: number, productData: unknown) => {
-    try {
-      const response = await axios.put(`${API_BASE_URL}/products/${productId}`, productData);
-      return response.data;
-    } catch (error) {
-      let errorMessage = "Failed to update product";
-      if (error instanceof Error) {
-        errorMessage = error.message;
+export const getProduct = async (productId: number) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/product/${productId}`);
+    return response.data;
+  } catch (error) {
+    let errorMessage = "Failed to fetch product";
+    if (axios.isAxiosError(error)) {
+      const backendMessage = error.response?.data?.message;
+      if (backendMessage) {
+        errorMessage = backendMessage;
       }
-      throw new Error(errorMessage);
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
     }
-  },
+    throw new Error(errorMessage);
+  }
+};
 
-  deleteProduct: async (productId: number) => {
-    try {
-      await axios.delete(`${API_BASE_URL}/products/${productId}`);
-    } catch (error) {
-      let errorMessage = "Failed to delete product";
-      if (error instanceof Error) {
-        errorMessage = error.message;
+export const getProductByFarmer = async (farmerId: number) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/product/farmer/${farmerId}`);
+    return response.data;
+  } catch (error) {
+    let errorMessage = "Failed to fetch product";
+    if (axios.isAxiosError(error)) {
+      const backendMessage = error.response?.data?.message;
+      if (backendMessage) {
+        errorMessage = backendMessage;
       }
-      throw new Error(errorMessage);
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
     }
-  },
+    throw new Error(errorMessage);
+  }
+};
+
+export const updateProduct = async (
+  productId: number,
+  productData: unknown
+) => {
+  try {
+    const response = await axios.put(
+      `${BASE_URL}/product/${productId}`,
+      productData
+    );
+    return response.data;
+  } catch (error) {
+    let errorMessage = "Failed to update product";
+
+    if (axios.isAxiosError(error)) {
+      const backendMessage = error.response?.data?.message;
+      if (backendMessage) {
+        errorMessage = backendMessage;
+      }
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
+    throw new Error(errorMessage);
+  }
+};
+
+export const deleteProduct = async (productId: number) => {
+  try {
+    const response = await axios.delete(`${BASE_URL}/product/${productId}`);
+    return response.data;
+  } catch (error) {
+    let errorMessage = "Failed to delete product";
+
+    if (axios.isAxiosError(error)) {
+      const backendMessage = error.response?.data?.message;
+      if (backendMessage) {
+        errorMessage = backendMessage;
+      }
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
+    throw new Error(errorMessage);
+  }
 };
