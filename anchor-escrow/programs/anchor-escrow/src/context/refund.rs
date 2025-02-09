@@ -15,8 +15,8 @@ pub struct Refund<'info> {
     maker_ata_a: InterfaceAccount<'info, TokenAccount>,
     #[account(
         mut,
-        close = maker, // who will receive the rent back
-        has_one = mint_a, // checks that inside the escrow there is a variable call maker and mint_a with the same value as the scruct var
+        close = maker,
+        has_one = mint_a,
         has_one = maker,
         seeds = [b"escrow", maker.key().as_ref(), escrow.seed.to_le_bytes().as_ref()],
         bump = escrow.bump
@@ -46,8 +46,8 @@ impl<'info> Refund<'info> {
         let cpi_accounts = TransferChecked {
             from: self.vault.to_account_info(),
             to: self.maker_ata_a.to_account_info(),
-            mint: self.mint_a.to_account_info(),
-            authority: self.escrow.to_account_info()
+            authority: self.escrow.to_account_info(),
+            mint: self.mint_a.to_account_info()
         };
 
         let cpi_context = CpiContext::new_with_signer(cpi_program, cpi_accounts, &signer_seeds);

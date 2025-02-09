@@ -5,13 +5,13 @@ use crate::state::Escrow;
 #[derive(Accounts)]
 pub struct Take<'info> {
     #[account(mut)]
-    pub taker: Signer<'info>, // receives the mint a
+    pub taker: Signer<'info>, 
     #[account(mut)]
     pub maker: SystemAccount<'info>,
     pub mint_a: InterfaceAccount<'info, Mint>,
     pub mint_b: InterfaceAccount<'info, Mint>,
     #[account(
-        init_if_needed, // if have a custom program and actually pass the authority of the account to system program, any program can reclaim the ownership of that
+        init_if_needed,
         payer = taker,
         associated_token::mint = mint_a,
         associated_token::authority = taker,

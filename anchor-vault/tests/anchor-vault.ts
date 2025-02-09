@@ -1,127 +1,135 @@
 import * as anchor from "@coral-xyz/anchor";
-import { Program } from "@coral-xyz/anchor";
+import { BN, Program } from "@coral-xyz/anchor";
+import { Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { AnchorVault } from "../target/types/anchor_vault";
-import { PublicKey, SystemProgram, LAMPORTS_PER_SOL, Connection } from "@solana/web3.js";
 
-describe("anchor-vault", () => {
+describe("vault", () => {
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
+  const connection = provider.connection;
   const program = anchor.workspace.AnchorVault as Program<AnchorVault>;
-  const user = provider.wallet.publicKey;
 
-  let vaultStatePDA: PublicKey;
-  let vaultPDA: PublicKey;
+  const confirm = async (signature: string): Promise<string> => {
+    const block = await connection.getLatestBlockhash();
+    await connection.confirmTransaction({
+      signature,
+      blockhash: block.blockhash,
+      lastValidBlockHeight: block.lastValidBlockHeight,
+    });
 
-  before(async () => {
-    [vaultStatePDA] = await PublicKey.findProgramAddressSync(
-      [Buffer.from("state"), user.toBuffer()],
-      program.programId
+    return signature;
+  };
+
+  const log = async (signature: string): Promise<string> => {
+    if (connection.rpcEndpoint === "https://api.devnet.solana.com") {
+      console.log(
+        `Your transaction signature: https://explorer.solana.com/transaction/${signature}?cluster=devnet`
+      );
+    } else {
+      console.log(
+        `Your transaction signature: https://explorer.solana.com/transaction/${signature}?cluster=custom&customUrl=${connection.rpcEndpoint}`
+      );
+    }
+
+    return signature;
+  };
+
+  let user = Keypair.generate();
+  let vault_state: PublicKey;
+  let vault: PublicKey;
+  let accountsPublicKeys: any = {};
+
+  it("setup", async () => {
+    await connection.confirmTransaction(
+      await connection.requestAirdrop(user.publicKey, 5 * LAMPORTS_PER_SOL),
+      "confirmed"
     );
 
-    [vaultPDA] = await PublicKey.findProgramAddressSync(
-      [Buffer.from("vault"), vaultStatePDA.toBuffer()],
+    console.log("user balance: ", await connection.getBalance(user.publicKey) )
+
+    vault_state = PublicKey.findProgramAddressSync(
+      [Buffer.from("state", "utf-8"), user.publicKey.toBuffer()],
       program.programId
-    );
+    )[0];
 
-    // const connection = provider.connection;
+    console.log("vault state: ", vault_state);
 
-    // const rentExemptBalance = await provider.connection.getMinimumBalanceForRentExemption(
-    //   8 + 1 + 1 
-    // );
+    vault = PublicKey.findProgramAddressSync(
+      [Buffer.from("vault", "utf-8"), vault_state.toBuffer()],
+      program.programId
+    )[0];
 
-    // const userBalance = await provider.connection.getBalance(user);
-    // if (userBalance < rentExemptBalance) {
-    //   try {
-    //     const txhash = await connection.requestAirdrop(user, 2 * LAMPORTS_PER_SOL);
-    //     connection.confirmTransaction(txhash)
-    //     console.log(`Success! Check out your TX here: https://explorer.solana.com/tx/${txhash}?cluster=devnet`);
-    //   } catch(e) {
-    //     console.error(`Oops, something went wrong: ${e}`)
-    //   }
-    // }
+    console.log("vault: ", vault);
 
-    // try {
-    //   const txhash = await connection.requestAirdrop(vaultPDA, 2 * LAMPORTS_PER_SOL);
-    //   connection.confirmTransaction(txhash)
-    //   console.log(`Success! Check out your TX here: https://explorer.solana.com/tx/${txhash}?cluster=devnet`);
-    // } catch(e) {
-    //   console.error(`Oops, something went wrong: ${e}`)
-    // }
+    accountsPublicKeys = {
+      user: user.publicKey,
+      vault_state: vault_state,
+      vault: vault,
+    };
   });
 
-  it("Initialize vault", async () => {
-    const tx = await program.methods
+  it("initialize", async () => {
+    const accounts = {
+      user: accountsPublicKeys["user"],
+      vaultState: accountsPublicKeys["vault_state"],
+      vault: accountsPublicKeys["vault"],
+    };
+
+    await program.methods
       .initialize()
-      .accountsPartial({
-        user: user,
-        vaultState: vaultStatePDA,
-        vault: vaultPDA,
-        systemProgram: SystemProgram.programId,
-      })
-      .rpc();
-
-    console.log("User:", user);
-    console.log("Initialized vault with transaction:", tx);
+      .accounts(accounts)
+      .signers([user])
+      .rpc()
+      .then(confirm)
+      .then(log);
   });
 
-  it("Deposit funds into vault", async () => {
-    try {
-      const depositAmount = new anchor.BN(1_000_000_000);
+  it("deposit", async () => {
+    const accounts = {
+      user: accountsPublicKeys["user"],
+      vaultState: accountsPublicKeys["vault_state"],
+      vault: accountsPublicKeys["vault"],
+    };
 
-      const tx = await program.methods
-        .deposit(depositAmount)
-        .accountsStrict({
-          user: user,
-          vaultState: vaultStatePDA,
-          vault: vaultPDA,
-          systemProgram: SystemProgram.programId,
-        })
-        .rpc();
-  
-      console.log("Deposit funds with transaction:", tx);
-    } catch (error) {
-      console.error("Transaction failed:", error);
-      if (error.logs) {
-        console.error("Logs:", error.logs);
-      }
-    }
+    await program.methods
+      .deposit(new BN(0.02 * LAMPORTS_PER_SOL))
+      .accounts(accounts)
+      .signers([user])
+      .rpc()
+      .then(confirm)
+      .then(log);
   });
 
-  it("Withdraw funds from vault", async () => {
-    try {
-      const withdrawAmount = new anchor.BN(300_000_000);
+  it("withdraw", async () => {
+    const accounts = {
+      user: accountsPublicKeys["user"],
+      vaultState: accountsPublicKeys["vault_state"],
+      vault: accountsPublicKeys["vault"],
+    };
 
-      const tx = await program.methods
-        .withdraw(withdrawAmount)
-        .accountsStrict({
-          user: user,
-          vaultState: vaultStatePDA,
-          vault: vaultPDA,
-          systemProgram: SystemProgram.programId,
-        })
-        .rpc();
-  
-      console.log("Withdrew funds with transaction:", tx);
-    } catch (error) {
-      console.error("Transaction failed:", error);
-      if (error.logs) {
-        console.error("Logs:", error.logs);
-      }
-    }
+    await program.methods
+      .withdraw(new BN(0.01 * LAMPORTS_PER_SOL))
+      .accounts(accounts)
+      .signers([user])
+      .rpc()
+      .then(confirm)
+      .then(log);
   });
 
-  it("Close the vault", async () => {
-    const tx = await program.methods
+  it("close", async () => {
+    const accounts = {
+      user: accountsPublicKeys["user"],
+      vaultState: accountsPublicKeys["vault_state"],
+      vault: accountsPublicKeys["vault"],
+    };
+
+    await program.methods
       .close()
-      .accountsStrict({
-        user: user,
-        vaultState: vaultStatePDA,
-        vault: vaultPDA,
-        systemProgram: SystemProgram.programId,
-      })
-      .rpc();
-
-    console.log("Closed the vault with transaction:", tx);
+      .accounts(accounts)
+      .signers([user])
+      .rpc()
+      .then(confirm)
+      .then(log);
   });
 });
