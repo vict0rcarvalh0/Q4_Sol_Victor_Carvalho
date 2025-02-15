@@ -1,0 +1,16 @@
+SERVER_DIR := "server"
+FRONTEND_DIR := "frontend"
+
+run-compose:
+    cd {{SERVER_DIR}} && docker compose up -d
+
+run-server:
+    cd {{SERVER_DIR}} && cargo run
+
+run-frontend:
+    cd {{FRONTEND_DIR}} && npm run dev
+
+run-all:
+    just run-compose &
+    just run_server &
+    just run_frontend
