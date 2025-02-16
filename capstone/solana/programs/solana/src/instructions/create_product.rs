@@ -14,7 +14,7 @@ pub struct CreateProduct<'info> {
     pub farmer: Signer<'info>,
 
     #[account(
-        seeds = [b"farmlink", farmlink.name.as_str().as_bytes()],
+        seeds = [b"farmlink", farmlink.name.as_bytes()],
         bump = farmlink.bump,
     )]
     pub farmlink: Box<Account<'info, FarmLink>>,

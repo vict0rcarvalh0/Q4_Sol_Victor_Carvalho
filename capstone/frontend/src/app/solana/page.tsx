@@ -26,7 +26,7 @@ export default function SolanaPage() {
       setLoading(true);
       setMessage("Creating product...");
 
-      await createProduct(1000, "Tomato", "TOM", "https://example.com/tomato.jpg");
+      await createProduct("Tomato", 100, "Tomato","TOM", "https://example.com/tomato.jpg");
       setMessage("Product Created Successfully!");
     } catch (error) {
       setMessage(`Error: ${error}`);
