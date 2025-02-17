@@ -155,8 +155,8 @@ describe("FarmLink", () => {
       farmerAta = await getOrCreateAssociatedTokenAccount(
         connection,
         payer,
-        farmerMint,
-        farmer.publicKey
+        farmerMint, // mint
+        farmer.publicKey // owner
       );
 
       await mintTo(
